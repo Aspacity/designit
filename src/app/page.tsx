@@ -25,6 +25,8 @@ import {
   Eye,
   ShieldCheck,
   Layout as LayoutIcon,
+  Menu,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -63,6 +65,8 @@ export default function RootLandingPage() {
     { name: 'Scandinavian Coffee Table', category: 'tables' as const, color: '#D97706' },
     { name: 'Modern Accent Chair', category: 'seating' as const, color: '#EA580C' },
   ];
+
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col transition-colors duration-300">
@@ -121,13 +125,63 @@ export default function RootLandingPage() {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-orange-600 hover:bg-orange-700 text-white transition-opacity shadow-md"
+                className="hidden sm:inline-flex px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-orange-600 hover:bg-orange-700 text-white transition-opacity shadow-md"
+              >
+                Aspacity SSO Sign In
+              </button>
+            )}
+
+            {/* Mobile Menu Toggle Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2.5 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-foreground"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Dropdown Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-b border-border bg-card/95 backdrop-blur-md px-4 py-4 space-y-3 animate-fade-in">
+            <Link
+              href="/studio"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 text-xs font-semibold p-2.5 rounded-xl hover:bg-secondary"
+            >
+              <LayoutIcon className="w-4 h-4 text-orange-500" />
+              <span>Launch Studio</span>
+            </Link>
+            <Link
+              href="/viewer"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 text-xs font-semibold p-2.5 rounded-xl hover:bg-secondary"
+            >
+              <Eye className="w-4 h-4 text-amber-500" />
+              <span>Client Viewer</span>
+            </Link>
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 text-xs font-semibold p-2.5 rounded-xl hover:bg-secondary"
+            >
+              <ShieldCheck className="w-4 h-4 text-orange-600" />
+              <span>Admin Portal</span>
+            </Link>
+            {!user && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  openAuthModal();
+                }}
+                className="w-full mt-2 py-2.5 px-4 text-xs font-semibold rounded-xl bg-orange-600 hover:bg-orange-700 text-white shadow-md text-center"
               >
                 Aspacity SSO Sign In
               </button>
             )}
           </div>
-        </div>
+        )}
       </header>
 
       {/* Hero Section */}

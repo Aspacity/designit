@@ -39,7 +39,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   };
 
   return (
-    <div className="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-5 sm:top-5 z-50 flex flex-col gap-2 max-w-sm w-[calc(100vw-2rem)] sm:w-80 pointer-events-none">
       {toasts.map((toast) => (
         <div
           key={toast.id}

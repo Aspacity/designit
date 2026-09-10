@@ -75,7 +75,7 @@ export default function StudioPage() {
       {/* Main Workspace Grid */}
       <div className="grid lg:grid-cols-4 gap-6">
         {/* Left Control Column */}
-        <div className="space-y-4">
+        <div className="space-y-4 order-2 lg:order-1">
           <div className="p-5 bg-card border border-border rounded-2xl shadow-lg space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <h3 className="font-bold text-sm flex items-center gap-2">
@@ -171,13 +171,13 @@ export default function StudioPage() {
           </div>
         </div>
 
-        {/* Center 3D Viewport */}
-        <div className="lg:col-span-2 min-h-[450px] sm:min-h-[550px]">
+        {/* Center 3D Viewport (Promoted to top on mobile) */}
+        <div className="lg:col-span-2 min-h-[360px] sm:min-h-[550px] order-1 lg:order-2">
           <RoomVisualizer />
         </div>
 
         {/* Right Inspector Column */}
-        <div className="space-y-4">
+        <div className="space-y-4 order-3 lg:order-3">
           <MaterialInspector />
         </div>
       </div>

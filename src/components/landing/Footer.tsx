@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-neutral-950 text-neutral-400 py-12 sm:py-16 text-xs sm:text-sm">
+    <footer className="border-t dark:border-white/10 border-slate-200 dark:bg-neutral-950 bg-slate-900 dark:text-neutral-400 text-slate-300 py-12 sm:py-16 text-xs sm:text-sm">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -18,10 +18,10 @@ export function Footer() {
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-white text-base">DesignIT</span>
-                <span className="text-[10px] text-neutral-400 font-medium">by Aspacity</span>
+                <span className="text-[10px] text-slate-400 font-medium">by Aspacity</span>
               </div>
             </div>
-            <p className="text-xs text-neutral-400 leading-relaxed font-light">
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
               The zero-barrier 3D spatial visualization platform for creators, designers, architects, and visionaries.
             </p>
           </div>
@@ -150,7 +150,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400">
+        <div className="pt-8 border-t dark:border-white/5 border-slate-800 flex items-center justify-between text-xs text-slate-400">
           <p>© {new Date().getFullYear()} DesignIT — A product by Aspacity. All rights reserved.</p>
         </div>
 

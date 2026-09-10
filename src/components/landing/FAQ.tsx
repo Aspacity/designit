@@ -82,24 +82,24 @@ export function FAQ() {
   ];
 
   return (
-    <section ref={sectionRef} id="faq" className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
+    <section ref={sectionRef} id="faq" className="py-16 sm:py-24 border-b dark:border-white/5 border-neutral-200 dark:bg-neutral-950/40 bg-neutral-50/50 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-mono font-semibold">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Frequently Asked Questions</span>
           </div>
 
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-extrabold dark:text-white text-neutral-900 tracking-tight">
             Everything You Need to{' '}
-            <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-500 to-orange-600 dark:from-amber-400 dark:to-orange-500 bg-clip-text text-transparent">
               Know.
             </span>
           </h2>
 
-          <p className="text-base sm:text-lg text-neutral-300 font-light">
+          <p className="text-base sm:text-lg dark:text-neutral-300 text-neutral-600 font-light">
             Answers to common questions about DesignIT, product roadmap, and early access.
           </p>
         </div>
@@ -111,18 +111,18 @@ export function FAQ() {
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-white/10 bg-neutral-900/50 backdrop-blur-xl transition-all overflow-hidden"
+                className="rounded-2xl border dark:border-white/10 border-neutral-200 dark:bg-neutral-900/50 bg-white backdrop-blur-xl transition-all overflow-hidden shadow-sm hover:shadow-md"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
                   className="w-full flex items-center justify-between p-5 sm:p-6 text-left focus:outline-none"
                 >
-                  <span className="text-base sm:text-lg font-bold text-white pr-4">
+                  <span className="text-base sm:text-lg font-bold dark:text-white text-neutral-900 pr-4">
                     {faq.question}
                   </span>
                   <div
-                    className={`w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-300 shrink-0 transition-transform duration-300 ${
-                      isOpen ? 'rotate-180 bg-amber-500/20 text-amber-400' : ''
+                    className={`w-8 h-8 rounded-full dark:bg-neutral-800 bg-neutral-100 flex items-center justify-center dark:text-neutral-300 text-neutral-700 shrink-0 transition-transform duration-300 ${
+                      isOpen ? 'rotate-180 bg-amber-500/20 text-amber-500' : ''
                     }`}
                   >
                     <ChevronDown className="w-4 h-4" />
@@ -130,7 +130,7 @@ export function FAQ() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-6 pt-0 text-xs sm:text-sm text-neutral-300 leading-relaxed border-t border-white/5 mt-2 animate-fadeIn font-light">
+                  <div className="px-5 sm:px-6 pb-6 pt-0 text-xs sm:text-sm dark:text-neutral-300 text-neutral-600 leading-relaxed border-t dark:border-white/5 border-neutral-100 mt-2 animate-fadeIn font-light">
                     <p className="pt-4">{faq.answer}</p>
                   </div>
                 )}

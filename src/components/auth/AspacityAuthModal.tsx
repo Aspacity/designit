@@ -38,6 +38,7 @@ export function AspacityAuthModal() {
   const [otpCode, setOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isProfessional, setIsProfessional] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [accountExistsNotice, setAccountExistsNotice] = useState<string | null>(null);
@@ -48,14 +49,25 @@ export function AspacityAuthModal() {
 
   // 1. Google OAuth Real Backend Redirect
   const handleGoogleOAuth = () => {
+    if (step === 'register' && !agreedToTerms) {
+      showToast('Please accept the Terms of Service & Privacy Policy to continue.', 'warning');
+      return;
+    }
     showToast('Redirecting to Google OAuth Sign-In...', 'info');
     const frontendUrl = encodeURIComponent(window.location.origin);
-    window.location.href = `${ASPACITY_AUTH_URL}/api/auth/google?product=designit&frontend_url=${frontendUrl}`;
+    const roleParam = isProfessional ? 'PAINTER' : 'CONSUMER';
+    window.location.href = `${ASPACITY_AUTH_URL}/api/auth/google?product=designit&role=${roleParam}&frontend_url=${frontendUrl}`;
   };
 
   // 2. Standard Form Submit Switcher
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (step === 'register' && !agreedToTerms) {
+      showToast('Please accept the Terms of Service & Privacy Policy to continue.', 'warning');
+      return;
+    }
+
     setIsLoading(true);
     setAccountExistsNotice(null);
 
@@ -364,20 +376,44 @@ export function AspacityAuthModal() {
             </div>
           )}
 
-          {/* Professional Status Checkbox during Registration */}
+          {/* Professional Status & Terms Checkboxes during Registration */}
           {step === 'register' && (
-            <div className="p-3 rounded-2xl bg-secondary/50 border border-border flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="prof-check"
-                checked={isProfessional}
-                onChange={(e) => setIsProfessional(e.target.checked)}
-                className="w-4 h-4 accent-orange-600 rounded cursor-pointer"
-              />
-              <label htmlFor="prof-check" className="text-xs font-medium cursor-pointer flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-orange-600 shrink-0" />
-                <span>I am an Interior Design Professional / Architect</span>
-              </label>
+            <div className="space-y-2.5">
+              <div className="p-3 rounded-2xl bg-secondary/50 border border-border flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="prof-check"
+                  checked={isProfessional}
+                  onChange={(e) => setIsProfessional(e.target.checked)}
+                  className="w-4 h-4 accent-orange-600 rounded cursor-pointer"
+                />
+                <label htmlFor="prof-check" className="text-xs font-medium cursor-pointer flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5 text-orange-600 shrink-0" />
+                  <span>I am an Interior Design Professional / Architect</span>
+                </label>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-secondary/50 border border-border flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="terms-check"
+                  required
+                  checked={agreedToTerms}
+                  onChange={(e) => setAgreedToTerms(e.target.checked)}
+                  className="w-4 h-4 accent-orange-600 rounded cursor-pointer shrink-0"
+                />
+                <label htmlFor="terms-check" className="text-xs font-medium cursor-pointer leading-tight">
+                  <span>I agree to the </span>
+                  <a href="#" className="font-semibold text-orange-600 dark:text-orange-400 hover:underline">
+                    Terms of Service
+                  </a>
+                  <span> & </span>
+                  <a href="#" className="font-semibold text-orange-600 dark:text-orange-400 hover:underline">
+                    Privacy Policy
+                  </a>
+                  <span className="text-red-500 ml-0.5">*</span>
+                </label>
+              </div>
             </div>
           )}
 

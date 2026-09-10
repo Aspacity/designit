@@ -1,10 +1,38 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ChevronDown, Sparkles, HelpCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronDown, HelpCircle } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const accordionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sectionRef.current && accordionRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.from(accordionRef.current!.children, {
+          y: 30,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        });
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
+  }, []);
 
   const faqs = [
     {
@@ -21,7 +49,7 @@ export function FAQ() {
     },
     {
       question: 'What stage is the product currently in?',
-      answer: 'DesignIT is currently in active pre-launch development. We are onboarding early access testers from our waitlist in batches.',
+      answer: 'DesignIT is currently under active core engine development. We are onboarding early access testers from our waitlist in batches as features roll out.',
     },
     {
       question: 'How do I join the waitlist and get early access?',
@@ -34,10 +62,6 @@ export function FAQ() {
     {
       question: 'How does real-time lighting and material rendering work?',
       answer: 'DesignIT uses physically-based rendering (PBR) shaders and optimized WebGPU lighting pipelines. This enables real-time sunlight casting, texture roughness adjustments, and dynamic reflections at 60 FPS without offline rendering queues.',
-    },
-    {
-      question: 'Can administrators save standard 3D room blueprints for users?',
-      answer: 'Yes! Administrators can configure lighting, camera orbits, wall dimensions, and starter furniture in the Admin Playground to serve as master blueprints for users to customize.',
     },
     {
       question: 'Is DesignIT part of Aspacity?',
@@ -58,12 +82,12 @@ export function FAQ() {
   ];
 
   return (
-    <section id="faq" className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
+    <section ref={sectionRef} id="faq" className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono font-semibold">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Frequently Asked Questions</span>
           </div>
@@ -81,7 +105,7 @@ export function FAQ() {
         </div>
 
         {/* FAQ Accordion */}
-        <div className="mx-auto max-w-4xl space-y-4">
+        <div ref={accordionRef} className="mx-auto max-w-4xl space-y-4">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
@@ -106,7 +130,7 @@ export function FAQ() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-5 sm:px-6 pb-6 pt-0 text-xs sm:text-sm text-neutral-300 leading-relaxed border-t border-white/5 mt-2 animate-fadeIn">
+                  <div className="px-5 sm:px-6 pb-6 pt-0 text-xs sm:text-sm text-neutral-300 leading-relaxed border-t border-white/5 mt-2 animate-fadeIn font-light">
                     <p className="pt-4">{faq.answer}</p>
                   </div>
                 )}

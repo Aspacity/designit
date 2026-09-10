@@ -1,7 +1,7 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/components/admin/AdminPlaygroundView.tsx
  * @description Admin 3D Playground & Master Template Manager Component.
- * @purpose Core admin view for inspecting, creating, editing, configuring, and deleting 3D models and master templates.
+ * @purpose Core admin view with strict auth guarding and filesystem folder -> model selection dropdowns.
  */
 
 'use client';
@@ -15,18 +15,16 @@ import {
   Box,
   Layers,
   RefreshCw,
-  Check,
   Lock,
   Search,
-  Sliders,
   Trash2,
   Edit3,
   Copy,
-  Eye,
   Sun,
-  Camera,
   X,
-  ExternalLink,
+  Folder,
+  FileCode,
+  Check,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -51,6 +49,11 @@ export function AdminPlaygroundView() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
+  // Filesystem model scanner state
+  const [fsFolders, setFsFolders] = useState<string[]>([]);
+  const [fsFilesByCategory, setFsFilesByCategory] = useState<Record<string, string[]>>({});
+  const [isScanningFs, setIsScanningFs] = useState(false);
+
   // Modal State for Create / Edit
   const [editingModel, setEditingModel] = useState<CatalogModel | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +62,7 @@ export function AdminPlaygroundView() {
   // Form State
   const [name, setName] = useState('');
   const [category, setCategory] = useState('room-templates');
-  const [assetPath, setAssetPath] = useState('');
+  const [selectedFile, setSelectedFile] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [width, setWidth] = useState(8.0);
   const [height, setHeight] = useState(2.8);
@@ -71,9 +74,19 @@ export function AdminPlaygroundView() {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
+  // Automatically trigger auth modal if user is not admin
+  const isAuthorizedAdmin = !!user && user.role === 'admin' && !!token;
+
   useEffect(() => {
     fetchCatalog();
+    scanFilesystemModels();
   }, [selectedCategory]);
+
+  useEffect(() => {
+    if (!isAuthorizedAdmin) {
+      openAuthModal();
+    }
+  }, [user, token]);
 
   const fetchCatalog = async () => {
     setIsLoading(true);
@@ -96,11 +109,57 @@ export function AdminPlaygroundView() {
     }
   };
 
+  const scanFilesystemModels = async () => {
+    setIsScanningFs(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/models/scan-fs`);
+      const data = await res.json();
+      if (data.success) {
+        setFsFolders(data.folders || []);
+        setFsFilesByCategory(data.filesByCategory || {});
+      }
+    } catch (e) {
+      console.error('Failed to scan local models directory:', e);
+    } finally {
+      setIsScanningFs(false);
+    }
+  };
+
+  const handleCategoryChange = (newCat: string) => {
+    setCategory(newCat);
+    const availableFiles = fsFilesByCategory[newCat] || [];
+    if (availableFiles.length > 0) {
+      const defaultFile = availableFiles[0];
+      setSelectedFile(defaultFile);
+      if (!name || name === '') {
+        setName(formatFilenameToTitle(defaultFile));
+      }
+    } else {
+      setSelectedFile('');
+    }
+  };
+
+  const formatFilenameToTitle = (filename: string) => {
+    const cleanName = filename.replace(/\.(glb|gltf|jpg|png)$/i, '');
+    return cleanName
+      .replace(/[-_]/g, ' ')
+      .replace(/\(.*?\)/g, '')
+      .split(' ')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+      .trim();
+  };
+
   const handleOpenCreateModal = () => {
     setEditingModel(null);
-    setName('');
-    setCategory('room-templates');
-    setAssetPath('templates/modern-apartment.glb');
+    const defaultCat = fsFolders[0] || 'room-templates';
+    setCategory(defaultCat);
+
+    const availableFiles = fsFilesByCategory[defaultCat] || [];
+    const firstFile = availableFiles[0] || '';
+    setSelectedFile(firstFile);
+    setName(firstFile ? formatFilenameToTitle(firstFile) : 'New 3D Model');
+
     setThumbnailUrl('');
     setWidth(8.0);
     setHeight(2.8);
@@ -113,7 +172,11 @@ export function AdminPlaygroundView() {
     setEditingModel(model);
     setName(model.name);
     setCategory(model.category);
-    setAssetPath(model.asset_path);
+
+    const parts = model.asset_path.split('/');
+    const filename = parts.length > 1 ? parts[1] : parts[0];
+    setSelectedFile(filename);
+
     setThumbnailUrl(model.thumbnail_url || '');
     setWidth(model.dimensions?.width || 1.0);
     setHeight(model.dimensions?.height || 1.0);
@@ -124,12 +187,18 @@ export function AdminPlaygroundView() {
 
   const handleSaveModel = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
+    if (!token || !isAuthorizedAdmin) {
       openAuthModal();
       return;
     }
 
+    if (!selectedFile) {
+      showToast('Please select a 3D model file from the folder catalog.', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
+    const fullAssetPath = `${category}/${selectedFile}`;
 
     try {
       const isEdit = !!editingModel;
@@ -145,7 +214,7 @@ export function AdminPlaygroundView() {
         body: JSON.stringify({
           name: name.trim(),
           category,
-          asset_path: assetPath.trim(),
+          asset_path: fullAssetPath,
           thumbnail_url: thumbnailUrl.trim() || undefined,
           dimensions: { width, height, depth },
           default_materials: editingModel?.default_materials || [],
@@ -170,7 +239,7 @@ export function AdminPlaygroundView() {
   };
 
   const handleDeleteModel = async (id: string) => {
-    if (!token) {
+    if (!token || !isAuthorizedAdmin) {
       openAuthModal();
       return;
     }
@@ -198,7 +267,7 @@ export function AdminPlaygroundView() {
   };
 
   const handleDuplicateModel = async (model: CatalogModel) => {
-    if (!token) {
+    if (!token || !isAuthorizedAdmin) {
       openAuthModal();
       return;
     }
@@ -238,38 +307,31 @@ export function AdminPlaygroundView() {
     return matchesSearch;
   });
 
-  const categories = [
-    { id: 'all', label: 'All Categories' },
-    { id: 'room-templates', label: 'Room Templates' },
-    { id: 'seating', label: 'Seating' },
-    { id: 'tables', label: 'Tables' },
-    { id: 'lighting', label: 'Lighting' },
-    { id: 'decor', label: 'Decor' },
-    { id: 'electronics', label: 'Electronics' },
-    { id: 'textures', label: 'Textures' },
-  ];
+  // Strict Authorization Lock Overlay
+  if (!isAuthorizedAdmin) {
+    return (
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 text-center space-y-6 bg-card border border-border rounded-3xl shadow-xl my-8">
+        <div className="w-16 h-16 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-inner">
+          <Lock className="w-8 h-8" />
+        </div>
+        <div className="max-w-md space-y-2">
+          <h2 className="text-2xl font-extrabold tracking-tight">Admin Authorization Required</h2>
+          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+            Access to the 3D Playground and Master Template Configurator is restricted. Please sign in with an Aspacity Administrator account.
+          </p>
+        </div>
+        <button
+          onClick={openAuthModal}
+          className="px-6 py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs shadow-lg transition-transform hover:scale-105"
+        >
+          Authenticate as Admin
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-fade-in pb-12">
-      {/* Non-Admin Privileges Banner */}
-      {(!user || user.role !== 'admin') && (
-        <div className="p-6 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 flex items-start gap-4 shadow-sm">
-          <Lock className="w-6 h-6 shrink-0 mt-0.5" />
-          <div className="flex-1 space-y-1">
-            <h3 className="font-bold text-sm">Aspacity Administrator Privileges Required</h3>
-            <p className="text-xs leading-relaxed opacity-90">
-              You are currently exploring the 3D Playground in read-only mode. Sign in with an Aspacity Admin account to create, edit, configure lights/orbits, or delete master 3D models.
-            </p>
-          </div>
-          <button
-            onClick={openAuthModal}
-            className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-md shrink-0"
-          >
-            Sign In as Admin
-          </button>
-        </div>
-      )}
-
       {/* Title & Action Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
         <div>
@@ -280,7 +342,7 @@ export function AdminPlaygroundView() {
             </span>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Configure master 3D room templates, light placement, and camera orbits for Professionals and Clients.
+            Manage master 3D models populated directly from your local Aspacity models directory.
           </p>
         </div>
 
@@ -317,56 +379,42 @@ export function AdminPlaygroundView() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={fetchCatalog}
+              onClick={() => {
+                fetchCatalog();
+                scanFilesystemModels();
+              }}
               className="px-3.5 py-2.5 rounded-2xl border border-border bg-card hover:bg-secondary text-xs font-semibold flex items-center gap-1.5 transition-colors"
-              title="Refresh Catalog"
+              title="Refresh Catalog and Filesystem"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              <span>Refresh</span>
+              <span>Refresh FS</span>
             </button>
             <span className="text-xs font-semibold text-muted-foreground bg-card px-3 py-2.5 rounded-2xl border border-border font-mono">
-              Total: {models.length}
+              Total Models: {models.length}
             </span>
           </div>
         </div>
-
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
-                selectedCategory === cat.id
-                  ? 'bg-orange-600 text-white border-orange-600 shadow-md'
-                  : 'bg-card border-border hover:bg-secondary text-muted-foreground'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
       </div>
 
-      {/* Configured Models & Master Templates Grid */}
+      {/* Models Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {isLoading ? (
           <div className="col-span-full py-16 text-center text-xs text-muted-foreground space-y-2">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto text-orange-500" />
-            <p>Loading 3D asset catalog and master templates...</p>
+            <p>Loading 3D model templates...</p>
           </div>
         ) : filteredModels.length === 0 ? (
           <div className="col-span-full py-16 text-center text-xs text-muted-foreground space-y-3 bg-card border border-border rounded-3xl p-8">
             <Box className="w-8 h-8 mx-auto text-muted-foreground opacity-50" />
-            <p className="font-semibold text-sm">No 3D Models Found</p>
+            <p className="font-semibold text-sm">No 3D Models Configured</p>
             <p className="max-w-md mx-auto">
-              No configured models match your current filter. Click below to add a new 3D model template entry.
+              Select a model from your populated Aspacity models folder to configure a template.
             </p>
             <button
               onClick={handleOpenCreateModal}
               className="mt-2 px-4 py-2 rounded-xl bg-orange-600 text-white text-xs font-semibold"
             >
-              Add First 3D Model
+              Configure First Model
             </button>
           </div>
         ) : (
@@ -376,7 +424,6 @@ export function AdminPlaygroundView() {
               className="group bg-card border border-border hover:border-orange-500/50 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
-                {/* Visual Thumbnail Box */}
                 <div className="relative aspect-video rounded-2xl bg-secondary/60 border border-border/60 overflow-hidden flex items-center justify-center">
                   <Box className="w-10 h-10 text-orange-500 opacity-80 group-hover:scale-110 transition-transform" />
                   <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-background/90 backdrop-blur-md text-[10px] font-bold text-orange-600 dark:text-orange-400 border border-border">
@@ -389,7 +436,7 @@ export function AdminPlaygroundView() {
                         : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
                     }`}
                   >
-                    {model.is_public ? 'Public Template' : 'Draft'}
+                    {model.is_public ? 'Public' : 'Draft'}
                   </span>
                 </div>
 
@@ -398,7 +445,6 @@ export function AdminPlaygroundView() {
                   <p className="text-[11px] font-mono text-muted-foreground truncate mt-0.5">{model.asset_path}</p>
                 </div>
 
-                {/* Specs Box */}
                 <div className="grid grid-cols-2 gap-2 text-[10px] text-muted-foreground pt-1">
                   <div className="bg-secondary/40 p-2 rounded-xl border border-border/50">
                     <span className="block font-semibold uppercase text-[9px]">Dimensions</span>
@@ -413,7 +459,6 @@ export function AdminPlaygroundView() {
                 </div>
               </div>
 
-              {/* Action Buttons Footer */}
               <div className="pt-4 mt-4 border-t border-border space-y-2">
                 <Link
                   href={`/admin/playground/${model.id}`}
@@ -427,7 +472,6 @@ export function AdminPlaygroundView() {
                   <button
                     onClick={() => handleOpenEditModal(model)}
                     className="py-1.5 px-2 rounded-xl border border-border bg-background hover:bg-secondary text-[11px] font-medium text-foreground flex items-center justify-center gap-1 transition-colors"
-                    title="Edit Metadata"
                   >
                     <Edit3 className="w-3 h-3" />
                     <span>Edit</span>
@@ -435,7 +479,6 @@ export function AdminPlaygroundView() {
                   <button
                     onClick={() => handleDuplicateModel(model)}
                     className="py-1.5 px-2 rounded-xl border border-border bg-background hover:bg-secondary text-[11px] font-medium text-foreground flex items-center justify-center gap-1 transition-colors"
-                    title="Duplicate Template"
                   >
                     <Copy className="w-3 h-3" />
                     <span>Clone</span>
@@ -443,7 +486,6 @@ export function AdminPlaygroundView() {
                   <button
                     onClick={() => setDeletingId(model.id)}
                     className="py-1.5 px-2 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-600 text-[11px] font-medium flex items-center justify-center gap-1 transition-colors"
-                    title="Delete Entry"
                   >
                     <Trash2 className="w-3 h-3" />
                     <span>Delete</span>
@@ -455,7 +497,7 @@ export function AdminPlaygroundView() {
         )}
       </div>
 
-      {/* Add / Edit Master Model Modal */}
+      {/* Add / Edit Master Model Modal with Folder -> Model Selection */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md animate-fade-in">
           <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-card text-card-foreground rounded-3xl shadow-2xl border border-border p-6 sm:p-8">
@@ -466,9 +508,9 @@ export function AdminPlaygroundView() {
                 </div>
                 <div>
                   <h3 className="font-bold text-base">
-                    {editingModel ? 'Edit Master 3D Model' : 'Create Master 3D Model'}
+                    {editingModel ? 'Edit Master 3D Model' : 'Configure 3D Model from Folder'}
                   </h3>
-                  <p className="text-xs text-muted-foreground">Define catalog parameters and asset paths</p>
+                  <p className="text-xs text-muted-foreground">Loaded directly from your Aspacity models directory</p>
                 </div>
               </div>
               <button
@@ -480,49 +522,67 @@ export function AdminPlaygroundView() {
             </div>
 
             <form onSubmit={handleSaveModel} className="mt-5 space-y-4">
+              {/* Folder / Category Selector */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">Model Name</label>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <Folder className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Select Model Folder</span>
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs font-medium"
+                >
+                  {fsFolders.map((f) => (
+                    <option key={f} value={f}>
+                      {f} ({(fsFilesByCategory[f] || []).length} files)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Model File Selector (No typing required!) */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                  <FileCode className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Select 3D Model File (.glb / .gltf)</span>
+                </label>
+                <select
+                  value={selectedFile}
+                  onChange={(e) => {
+                    setSelectedFile(e.target.value);
+                    if (e.target.value) {
+                      setName(formatFilenameToTitle(e.target.value));
+                    }
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs font-mono"
+                >
+                  {(fsFilesByCategory[category] || []).length === 0 ? (
+                    <option value="">No files in folder</option>
+                  ) : (
+                    (fsFilesByCategory[category] || []).map((file) => (
+                      <option key={file} value={file}>
+                        {file}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* Model Name */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">Display Title</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Modern Executive Desk"
+                  placeholder="e.g. Curved Executive Sofa"
                   className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs font-medium"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">Category</label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs font-medium"
-                  >
-                    <option value="room-templates">room-templates</option>
-                    <option value="seating">seating</option>
-                    <option value="tables">tables</option>
-                    <option value="lighting">lighting</option>
-                    <option value="decor">decor</option>
-                    <option value="electronics">electronics</option>
-                    <option value="textures">textures</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">GLB Filename Path</label>
-                  <input
-                    type="text"
-                    required
-                    value={assetPath}
-                    onChange={(e) => setAssetPath(e.target.value)}
-                    placeholder="tables/executive-desk.glb"
-                    className="w-full px-3.5 py-2.5 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs font-mono"
-                  />
-                </div>
-              </div>
-
+              {/* Dimensions */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-[10px] font-semibold uppercase mb-1">Width (m)</label>
@@ -565,7 +625,7 @@ export function AdminPlaygroundView() {
                   className="w-4 h-4 accent-orange-600 rounded cursor-pointer"
                 />
                 <label htmlFor="pub-check" className="text-xs font-medium cursor-pointer">
-                  <span>Publish as Active Public Template for Professionals & Clients</span>
+                  <span>Active Public Template for Professionals & Clients</span>
                 </label>
               </div>
 
@@ -579,10 +639,10 @@ export function AdminPlaygroundView() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !selectedFile}
                   className="flex-1 py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs transition-opacity shadow-md disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving...' : editingModel ? 'Update Model' : 'Create Master Entry'}
+                  {isSubmitting ? 'Saving...' : editingModel ? 'Update Model' : 'Configure Model'}
                 </button>
               </div>
             </form>
@@ -600,7 +660,7 @@ export function AdminPlaygroundView() {
             <div>
               <h3 className="font-bold text-base">Delete 3D Model Entry?</h3>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                This will permanently delete this master model from the global catalog database. This action cannot be undone.
+                This will remove the template entry from the database.
               </p>
             </div>
 

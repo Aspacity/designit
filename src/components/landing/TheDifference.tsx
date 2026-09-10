@@ -1,17 +1,45 @@
 'use client';
 
-import React from 'react';
-import { Sparkles, ShieldAlert, Zap, Check, X } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { Check, X } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function TheDifference() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const boxesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sectionRef.current && boxesRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.from(boxesRef.current!.children, {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.2,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        });
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
+  }, []);
+
   return (
-    <section className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
+    <section ref={sectionRef} className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono font-semibold">
             <span>The DesignIT Advantage</span>
           </div>
 
@@ -28,7 +56,7 @@ export function TheDifference() {
         </div>
 
         {/* Comparison Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div ref={boxesRef} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           
           {/* Traditional Software Box */}
           <div className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 sm:p-8 backdrop-blur-xl space-y-6">
@@ -37,7 +65,7 @@ export function TheDifference() {
                 <h3 className="text-xl font-bold text-neutral-300">Traditional CAD & Renderers</h3>
                 <p className="text-xs text-neutral-400">Blender, Revit, SketchUp, Lumion</p>
               </div>
-              <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-400 px-2.5 py-1 rounded">
+              <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-400 px-2.5 py-1 rounded font-semibold">
                 Complex Workflow
               </span>
             </div>
@@ -71,7 +99,7 @@ export function TheDifference() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-xl font-bold text-white">DesignIT Spatial Engine</h3>
-                <p className="text-xs text-amber-400">Powered by Aspacity 3D Pipeline</p>
+                <p className="text-xs text-amber-400 font-semibold">Powered by Aspacity 3D Pipeline</p>
               </div>
             </div>
 

@@ -1,9 +1,38 @@
 'use client';
 
-import React from 'react';
-import { Box, Sun, Layers, Compass, Video, Sparkles, Sliders, Smartphone } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { Box, Sun, Layers, Compass, Sliders, Smartphone } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function Capabilities() {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sectionRef.current && gridRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.from(gridRef.current!.children, {
+          y: 40,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        });
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
+  }, []);
+
   const capabilities = [
     {
       title: 'Interactive 3D Camera System',
@@ -13,7 +42,7 @@ export function Capabilities() {
     },
     {
       title: 'Curated Spatial Furniture Catalog',
-      description: 'Access a growing library of 3D sofas, tables, lighting fixtures, and decor optimized for web loading performance.',
+      description: 'Access a growing library of 3D sofas, tables, lighting fixtures, and decor optimized for WebGL/WebGPU canvas performance.',
       icon: Box,
       badge: 'GLTF / GLB Native',
     },
@@ -30,10 +59,10 @@ export function Capabilities() {
       badge: 'Daylight Simulator',
     },
     {
-      title: 'Admin Model Templates',
-      description: 'Pre-configured architectural bases saved directly by administrators to serve as starting templates for projects.',
+      title: 'Precision Room Dimensions',
+      description: 'Define custom architectural wall boundaries, window apertures, and door placements to match real spatial measurements.',
       icon: Sliders,
-      badge: 'Template System',
+      badge: 'Architectural Scale',
     },
     {
       title: 'Cross-Device Client Preview',
@@ -44,13 +73,12 @@ export function Capabilities() {
   ];
 
   return (
-    <section id="capabilities" className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
+    <section ref={sectionRef} id="capabilities" className="py-16 sm:py-24 border-b border-white/5 bg-neutral-950/40 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono font-semibold">
             <span>Platform Capabilities</span>
           </div>
 
@@ -67,7 +95,7 @@ export function Capabilities() {
         </div>
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {capabilities.map((cap, idx) => {
             const IconComponent = cap.icon;
             return (
@@ -80,7 +108,7 @@ export function Capabilities() {
                     <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-110 transition-all">
                       <IconComponent className="w-6 h-6" />
                     </div>
-                    <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-300 px-2.5 py-1 rounded-md border border-white/5">
+                    <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-300 px-2.5 py-1 rounded-md border border-white/5 font-semibold">
                       {cap.badge}
                     </span>
                   </div>

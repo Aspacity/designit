@@ -13,25 +13,25 @@ export function Footer() {
           {/* Brand Column */}
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-base shadow-md">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white font-extrabold text-base shadow-md">
                 D
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-white text-base">DesignIT</span>
-                <span className="text-[10px] text-neutral-400">by Aspacity</span>
+                <span className="font-extrabold text-white text-base">DesignIT</span>
+                <span className="text-[10px] text-neutral-400 font-medium">by Aspacity</span>
               </div>
             </div>
             <p className="text-xs text-neutral-400 leading-relaxed font-light">
-              The zero-barrier 3D spatial visualization platform for designers, architects, and visionaries.
+              The zero-barrier 3D spatial visualization platform for creators, designers, architects, and visionaries.
             </p>
           </div>
 
           {/* Product Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono uppercase text-white font-semibold tracking-wider">
+            <h4 className="text-xs font-mono uppercase text-white font-bold tracking-wider">
               DesignIT Platform
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-xs font-medium">
               <li>
                 <a href="#about" className="hover:text-amber-400 transition-colors">
                   About Product
@@ -67,23 +67,23 @@ export function Footer() {
 
           {/* Ecosystem Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono uppercase text-white font-semibold tracking-wider">
+            <h4 className="text-xs font-mono uppercase text-white font-bold tracking-wider">
               Aspacity Ecosystem
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-xs font-medium">
               <li>
                 <a
                   href="https://paintit.aspacity.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-amber-400 transition-colors flex items-center gap-1"
+                  className="hover:text-amber-400 transition-colors flex items-center gap-1.5"
                 >
                   <span>PaintIT (3D Paint Visualizer)</span>
-                  <span className="text-[10px] text-emerald-400">Live</span>
+                  <span className="text-[10px] text-emerald-400 font-bold">Live</span>
                 </a>
               </li>
               <li>
-                <span className="text-amber-400 font-medium">DesignIT (Spatial 3D Studio) — Pre-Launch</span>
+                <span className="text-amber-400 font-bold">DesignIT (Spatial Studio) — Pre-Launch</span>
               </li>
               <li>
                 <a
@@ -120,10 +120,10 @@ export function Footer() {
 
           {/* Legal Links */}
           <div className="space-y-3">
-            <h4 className="text-xs font-mono uppercase text-white font-semibold tracking-wider">
+            <h4 className="text-xs font-mono uppercase text-white font-bold tracking-wider">
               Legal & Trust
             </h4>
-            <ul className="space-y-2 text-xs">
+            <ul className="space-y-2 text-xs font-medium">
               <li>
                 <Link href="/privacy" className="hover:text-amber-400 transition-colors">
                   Privacy Policy
@@ -150,11 +150,8 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-neutral-400">
+        <div className="pt-8 border-t border-white/5 flex items-center justify-between text-xs text-neutral-400">
           <p>© {new Date().getFullYear()} DesignIT — A product by Aspacity. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <span>Built with WebGPU & Three.js</span>
-          </div>
         </div>
 
       </div>

@@ -1,7 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Sparkles, ArrowRight, CheckCircle2, AlertCircle, Loader2, Mail, Phone, UserCheck } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowRight, CheckCircle2, AlertCircle, Loader2, Mail, Phone, UserCheck } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function Waitlist() {
   const [email, setEmail] = useState('');
@@ -9,6 +15,28 @@ export function Waitlist() {
   const [role, setRole] = useState('Interior Designer');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sectionRef.current && boxRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.from(boxRef.current, {
+          scale: 0.95,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        });
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
+  }, []);
 
   const roles = [
     'Interior Designer',
@@ -50,24 +78,21 @@ export function Waitlist() {
       }
     } catch (err: any) {
       console.error('Waitlist submit error:', err);
-      // Client fallback simulation if backend offline
       setStatus('success');
       setMessage('You have been registered for early access! We will contact you soon.');
     }
   };
 
   return (
-    <section id="waitlist" className="py-20 sm:py-28 border-b border-white/5 relative overflow-hidden">
-      {/* Ambient background light */}
+    <section ref={sectionRef} id="waitlist" className="py-20 sm:py-28 border-b border-white/5 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-600/10 blur-[180px] pointer-events-none rounded-full" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         
-        <div className="mx-auto max-w-3xl rounded-3xl border border-amber-500/30 bg-neutral-900/80 p-8 sm:p-12 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+        <div ref={boxRef} className="mx-auto max-w-3xl rounded-3xl border border-amber-500/30 bg-neutral-900/80 p-8 sm:p-12 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
           
           <div className="mx-auto max-w-xl text-center space-y-4 mb-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono font-semibold">
               <span>Pre-Launch Early Access</span>
             </div>
 
@@ -89,7 +114,7 @@ export function Waitlist() {
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold text-white">You're On The List!</h3>
-              <p className="text-xs sm:text-sm text-emerald-200 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm text-emerald-200 max-w-md mx-auto leading-relaxed font-light">
                 {message}
               </p>
               <div className="pt-2">
@@ -104,9 +129,8 @@ export function Waitlist() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
               
-              {/* Role Selector */}
               <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-2 flex items-center gap-1.5">
+                <label className="block text-xs font-semibold text-neutral-300 mb-2 flex items-center gap-1.5">
                   <UserCheck className="w-3.5 h-3.5 text-amber-400" />
                   <span>I am registering as:</span>
                 </label>
@@ -123,9 +147,8 @@ export function Waitlist() {
                 </select>
               </div>
 
-              {/* Email Input */}
               <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-2 flex items-center gap-1.5">
+                <label className="block text-xs font-semibold text-neutral-300 mb-2 flex items-center gap-1.5">
                   <Mail className="w-3.5 h-3.5 text-amber-400" />
                   <span>Work Email Address *</span>
                 </label>
@@ -139,9 +162,8 @@ export function Waitlist() {
                 />
               </div>
 
-              {/* Phone Input (Optional) */}
               <div>
-                <label className="block text-xs font-medium text-neutral-300 mb-2 flex items-center gap-1.5">
+                <label className="block text-xs font-semibold text-neutral-300 mb-2 flex items-center gap-1.5">
                   <Phone className="w-3.5 h-3.5 text-amber-400" />
                   <span>Phone Number (Optional)</span>
                 </label>
@@ -154,7 +176,6 @@ export function Waitlist() {
                 />
               </div>
 
-              {/* Error Message */}
               {status === 'error' && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-400">
                   <AlertCircle className="w-4 h-4 shrink-0" />
@@ -162,7 +183,6 @@ export function Waitlist() {
                 </div>
               )}
 
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={status === 'loading'}
@@ -175,7 +195,6 @@ export function Waitlist() {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-5 h-5" />
                     <span>Get Early Access</span>
                     <ArrowRight className="w-5 h-5" />
                   </>

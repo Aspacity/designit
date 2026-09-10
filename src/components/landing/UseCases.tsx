@@ -1,10 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Sparkles, CheckCircle2, UserCheck, Building2, Home } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { CheckCircle2, UserCheck, Building2, Home } from 'lucide-react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export function UseCases() {
   const [activeTab, setActiveTab] = useState<'designers' | 'architects' | 'homeowners'>('designers');
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sectionRef.current && cardRef.current) {
+      const ctx = gsap.context(() => {
+        gsap.from(cardRef.current, {
+          y: 40,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+          },
+        });
+      }, sectionRef);
+
+      return () => ctx.revert();
+    }
+  }, []);
 
   const useCases = {
     designers: {
@@ -52,13 +79,12 @@ export function UseCases() {
   const IconComponent = currentCase.icon;
 
   return (
-    <section id="use-cases" className="py-16 sm:py-24 border-b border-white/5 relative">
+    <section ref={sectionRef} id="use-cases" className="py-16 sm:py-24 border-b border-white/5 relative">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4 mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono font-semibold">
             <span>Tailored Solutions</span>
           </div>
 
@@ -79,7 +105,7 @@ export function UseCases() {
           <div className="inline-flex items-center gap-2 p-1.5 rounded-xl bg-neutral-900 border border-white/10 backdrop-blur-md">
             <button
               onClick={() => setActiveTab('designers')}
-              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'designers'
                   ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
                   : 'text-neutral-400 hover:text-white'
@@ -90,7 +116,7 @@ export function UseCases() {
             </button>
             <button
               onClick={() => setActiveTab('architects')}
-              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'architects'
                   ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
                   : 'text-neutral-400 hover:text-white'
@@ -101,7 +127,7 @@ export function UseCases() {
             </button>
             <button
               onClick={() => setActiveTab('homeowners')}
-              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-2 ${
                 activeTab === 'homeowners'
                   ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/25'
                   : 'text-neutral-400 hover:text-white'
@@ -114,7 +140,7 @@ export function UseCases() {
         </div>
 
         {/* Tab Content Display Card */}
-        <div className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-neutral-900/60 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+        <div ref={cardRef} className="mx-auto max-w-4xl rounded-2xl border border-white/10 bg-neutral-900/60 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 blur-[100px] pointer-events-none rounded-full" />
 
           <div className="relative z-10 space-y-8">
@@ -128,7 +154,7 @@ export function UseCases() {
                   <p className="text-xs sm:text-sm text-neutral-400">{currentCase.description}</p>
                 </div>
               </div>
-              <span className="text-xs font-mono uppercase bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full border border-amber-500/20">
+              <span className="text-xs font-mono uppercase bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full border border-amber-500/20 font-semibold">
                 {currentCase.badge}
               </span>
             </div>

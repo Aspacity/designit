@@ -8,7 +8,7 @@ import { HowItWorks } from '@/components/landing/HowItWorks';
 import { Capabilities } from '@/components/landing/Capabilities';
 import { UseCases } from '@/components/landing/UseCases';
 import { TheDifference } from '@/components/landing/TheDifference';
-import { InteractiveVsStatic } from '@/components/landing/InteractiveVsStatic';
+// import { InteractiveVsStatic } from '@/components/landing/InteractiveVsStatic';
 import { Ecosystem } from '@/components/landing/Ecosystem';
 import { UpdatesSection } from '@/components/landing/UpdatesSection';
 import { FAQ } from '@/components/landing/FAQ';
@@ -21,7 +21,7 @@ export default function LandingPage() {
       {/* Glassmorphic Sticky Header */}
       <Navbar />
 
-      {/* Hero Section with MediaPlaceholder Showcase */}
+      {/* Hero Section with "Bring your space to life..." & GSAP entrance */}
       <Hero />
 
       {/* Product Overview & Philosophy */}
@@ -30,7 +30,7 @@ export default function LandingPage() {
       {/* 4-Step How It Works Workflow */}
       <HowItWorks />
 
-      {/* Platform Capabilities & 3D Features */}
+      {/* Platform Capabilities */}
       <Capabilities />
 
       {/* Targeted Audience Use Cases */}
@@ -39,13 +39,13 @@ export default function LandingPage() {
       {/* The Advantage: Speed & Accessibility vs Complex CAD */}
       <TheDifference />
 
-      {/* Real-time Interactive vs Static Render Loop Comparison */}
-      <InteractiveVsStatic />
+      {/* Real-time Interactive vs Static Render Loop Comparison (Commented out per request) */}
+      {/* <InteractiveVsStatic /> */}
 
       {/* Aspacity Ecosystem Discovery Pathway */}
       <Ecosystem />
 
-      {/* Devlogs & Recent Product Updates */}
+      {/* Active Core Development Progress */}
       <UpdatesSection />
 
       {/* Frequently Asked Questions */}

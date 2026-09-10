@@ -29,7 +29,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const newToast: ToastMessage = { id, message, type, duration };
 
-      setToasts((prev) => [...prev, newToast]);
+      setToasts((prev) => {
+        if (prev.some((t) => t.message === message)) return prev;
+        return [...prev, newToast];
+      });
 
       if (duration > 0) {
         setTimeout(() => {

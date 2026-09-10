@@ -45,45 +45,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Failed to parse saved user credentials');
       }
     }
-
-    // Auto-detect OAuth redirect params in URL (?token=...&email=...)
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlToken = urlParams.get('token');
-      const urlEmail = urlParams.get('email');
-      const urlName = urlParams.get('name');
-      const urlRole = urlParams.get('role');
-
-      if (urlToken && urlEmail) {
-        const newUser: User = {
-          id: urlParams.get('id') || 'oauth-user',
-          email: urlEmail,
-          name: urlName || urlEmail.split('@')[0],
-          role: urlRole?.toUpperCase() === 'PAINTER' ? 'professional' : urlRole?.toLowerCase() === 'admin' ? 'admin' : 'client',
-          accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
-        };
-        login(urlToken, newUser);
-
-        const cleanUrl = window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-      }
-    }
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
+  const login = React.useCallback((newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('aspacity_sso_jwt', newToken);
     localStorage.setItem('aspacity_sso_user', JSON.stringify(newUser));
     setIsAuthModalOpen(false);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('aspacity_sso_jwt');
     localStorage.removeItem('aspacity_sso_user');
-  };
+  }, []);
+
+  const openAuthModal = React.useCallback(() => setIsAuthModalOpen(true), []);
+  const closeAuthModal = React.useCallback(() => setIsAuthModalOpen(false), []);
 
   return (
     <AuthContext.Provider
@@ -91,8 +71,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         token,
         isAuthModalOpen,
-        openAuthModal: () => setIsAuthModalOpen(true),
-        closeAuthModal: () => setIsAuthModalOpen(false),
+        openAuthModal,
+        closeAuthModal,
         login,
         logout,
       }}

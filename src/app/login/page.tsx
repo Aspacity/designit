@@ -18,7 +18,12 @@ function LoginHandler() {
   const { login, openAuthModal } = useAuth();
   const { showToast } = useToast();
 
+  const processedRef = React.useRef(false);
+
   useEffect(() => {
+    if (processedRef.current) return;
+    processedRef.current = true;
+
     const urlToken = searchParams?.get('token');
     const urlEmail = searchParams?.get('email');
     const urlName = searchParams?.get('name');

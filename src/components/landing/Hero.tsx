@@ -57,7 +57,7 @@ export function Hero() {
   };
 
   return (
-    <section ref={heroRef} className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-white/5">
+    <section ref={heroRef} className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b dark:border-white/5 border-neutral-200">
       {/* Ambient Lights */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-amber-500/10 via-orange-500/10 to-transparent blur-[140px] pointer-events-none rounded-full" />
       
@@ -67,20 +67,20 @@ export function Hero() {
         <div className="mx-auto max-w-4xl text-center space-y-6">
           
           {/* Pre-launch Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 backdrop-blur-md text-amber-400 text-xs sm:text-sm font-semibold shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 backdrop-blur-md text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-semibold shadow-sm">
             <span>Pre-Launch Access • Aspacity Spatial Ecosystem</span>
           </div>
 
           {/* Main Title */}
-          <h1 ref={headlineRef} className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.1]">
+          <h1 ref={headlineRef} className="text-4xl sm:text-6xl lg:text-7xl font-extrabold dark:text-white text-neutral-900 tracking-tight leading-[1.1]">
             Bring your space to life...{' '}
-            <span className="block mt-2 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
+            <span className="block mt-2 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 dark:from-amber-400 dark:via-orange-400 dark:to-amber-500 bg-clip-text text-transparent">
               Design, Stage & Experience in 3D.
             </span>
           </h1>
 
           {/* Subheading */}
-          <p ref={subtitleRef} className="mx-auto max-w-2xl text-base sm:text-lg lg:text-xl text-neutral-300 leading-relaxed font-light">
+          <p ref={subtitleRef} className="mx-auto max-w-2xl text-base sm:text-lg lg:text-xl dark:text-neutral-300 text-neutral-600 leading-relaxed font-light">
             DesignIT gives creators, architects, interior specialists, and homeowners the freedom to build and customize real-time spatial environments directly in their browser.
           </p>
 
@@ -98,25 +98,25 @@ export function Hero() {
               href="https://aspacity.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-neutral-900/80 border border-white/10 px-6 py-3.5 text-sm sm:text-base font-semibold text-neutral-200 hover:text-white hover:border-white/20 backdrop-blur-md transition-all"
+              className="inline-flex items-center gap-2 rounded-xl dark:bg-neutral-900/80 bg-neutral-100 dark:border-white/10 border-neutral-200 px-6 py-3.5 text-sm sm:text-base font-semibold dark:text-neutral-200 text-neutral-800 dark:hover:text-white hover:text-neutral-900 backdrop-blur-md transition-all shadow-sm"
             >
-              <Compass className="w-5 h-5 text-neutral-400" />
+              <Compass className="w-5 h-5 dark:text-neutral-400 text-neutral-500" />
               <span>Explore Aspacity</span>
             </a>
           </div>
 
           {/* Value Badges */}
-          <div className="pt-6 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl mx-auto text-xs sm:text-sm text-neutral-400">
-            <div className="flex items-center justify-center gap-2 bg-neutral-900/40 p-2.5 rounded-lg border border-white/5">
-              <Zap className="w-4 h-4 text-amber-400" />
+          <div className="pt-6 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl mx-auto text-xs sm:text-sm dark:text-neutral-400 text-neutral-600">
+            <div className="flex items-center justify-center gap-2 dark:bg-neutral-900/40 bg-neutral-100 p-2.5 rounded-lg border dark:border-white/5 border-neutral-200">
+              <Zap className="w-4 h-4 text-amber-500" />
               <span>Zero Render Wait Time</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-neutral-900/40 p-2.5 rounded-lg border border-white/5">
-              <Globe className="w-4 h-4 text-amber-400" />
+            <div className="flex items-center justify-center gap-2 dark:bg-neutral-900/40 bg-neutral-100 p-2.5 rounded-lg border dark:border-white/5 border-neutral-200">
+              <Globe className="w-4 h-4 text-amber-500" />
               <span>100% Browser Native</span>
             </div>
-            <div className="flex items-center justify-center gap-2 bg-neutral-900/40 p-2.5 rounded-lg border border-white/5 col-span-2 sm:col-span-1">
-              <Layers className="w-4 h-4 text-amber-400" />
+            <div className="flex items-center justify-center gap-2 dark:bg-neutral-900/40 bg-neutral-100 p-2.5 rounded-lg border dark:border-white/5 border-neutral-200 col-span-2 sm:col-span-1">
+              <Layers className="w-4 h-4 text-amber-500" />
               <span>1-Click Interactive Link</span>
             </div>
           </div>

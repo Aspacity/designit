@@ -2,10 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const scrollToWaitlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -17,7 +19,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-neutral-950/90 backdrop-blur-xl transition-all shadow-lg">
+    <header className="sticky top-0 z-50 w-full border-b dark:border-white/10 border-neutral-200 dark:bg-neutral-950/90 bg-white/90 backdrop-blur-xl transition-all shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 h-16 sm:h-20">
         
         {/* Brand Section */}
@@ -28,49 +30,60 @@ export function Navbar() {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-white text-base sm:text-lg tracking-tight">DesignIT</span>
-                <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 font-semibold">
+                <span className="font-extrabold dark:text-white text-neutral-900 text-base sm:text-lg tracking-tight">DesignIT</span>
+                <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 font-semibold">
                   Pre-Launch
                 </span>
               </div>
-              <span className="text-[10px] text-neutral-400 tracking-wide font-medium">by Aspacity</span>
+              <span className="text-[10px] dark:text-neutral-400 text-neutral-500 tracking-wide font-medium">by Aspacity</span>
             </div>
           </Link>
         </div>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-semibold text-neutral-300">
-          <a href="#about" className="hover:text-amber-400 transition-colors">
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-xs lg:text-sm font-semibold dark:text-neutral-300 text-neutral-700">
+          <a href="#about" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
             About
           </a>
-          <a href="#how-it-works" className="hover:text-amber-400 transition-colors">
+          <a href="#how-it-works" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
             How It Works
           </a>
-          <a href="#capabilities" className="hover:text-amber-400 transition-colors">
+          <a href="#capabilities" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
             Capabilities
           </a>
-          <a href="#use-cases" className="hover:text-amber-400 transition-colors">
+          <a href="#use-cases" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
             Use Cases
           </a>
-          <a href="#faq" className="hover:text-amber-400 transition-colors">
+          <a href="#faq" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
             FAQ
           </a>
-          <Link href="/updates" className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
+          <Link href="/updates" className="hover:text-amber-600 dark:hover:text-amber-400 transition-colors flex items-center gap-1.5">
             <span>Updates</span>
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
           </Link>
         </nav>
 
-        {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Desktop CTAs & Theme Toggle */}
+        <div className="hidden md:flex items-center gap-3">
+          {/* Light / Dark Mode Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="p-2 rounded-xl border dark:border-white/10 border-neutral-200 dark:bg-neutral-900 bg-neutral-100 dark:text-amber-400 text-amber-600 hover:scale-105 active:scale-95 transition-all shadow-sm"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-800" />}
+          </button>
+
           <a
             href="https://aspacity.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold text-neutral-400 hover:text-white transition-colors"
+            className="text-xs font-semibold dark:text-neutral-400 text-neutral-600 dark:hover:text-white hover:text-neutral-900 transition-colors"
           >
             Aspacity Home
           </a>
+
           <button
             onClick={scrollToWaitlist}
             className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 text-xs lg:text-sm font-bold text-white shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all"
@@ -80,17 +93,27 @@ export function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Controls */}
         <div className="flex md:hidden items-center gap-2">
+          {/* Light / Dark Mode Toggle Button (Mobile) */}
+          <button
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="p-1.5 rounded-lg border dark:border-white/10 border-neutral-200 dark:bg-neutral-900 bg-neutral-100 dark:text-amber-400 text-neutral-800"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-800" />}
+          </button>
+
           <button
             onClick={scrollToWaitlist}
-            className="rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-400 border border-amber-500/30"
+            className="rounded-lg bg-amber-500/20 px-3 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-500/30"
           >
             Waitlist
           </button>
+
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-neutral-300 hover:text-white focus:outline-none"
+            className="p-2 dark:text-neutral-300 text-neutral-700 hover:text-foreground focus:outline-none"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -100,47 +123,47 @@ export function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-b border-white/10 bg-neutral-950/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-4">
-          <div className="flex flex-col space-y-3 text-sm text-neutral-300 font-semibold border-b border-white/5 pb-4">
+        <div className="md:hidden border-b dark:border-white/10 border-neutral-200 dark:bg-neutral-950/95 bg-white/95 backdrop-blur-2xl px-4 pt-3 pb-6 space-y-4">
+          <div className="flex flex-col space-y-3 text-sm dark:text-neutral-300 text-neutral-700 font-semibold border-b dark:border-white/5 border-neutral-200 pb-4">
             <a
               href="#about"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-1 hover:text-amber-400 transition-colors"
+              className="py-1 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
             >
               About DesignIT
             </a>
             <a
               href="#how-it-works"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-1 hover:text-amber-400 transition-colors"
+              className="py-1 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
             >
               How It Works
             </a>
             <a
               href="#capabilities"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-1 hover:text-amber-400 transition-colors"
+              className="py-1 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
             >
               Capabilities
             </a>
             <a
               href="#use-cases"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-1 hover:text-amber-400 transition-colors"
+              className="py-1 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
             >
               Use Cases
             </a>
             <a
               href="#faq"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-1 hover:text-amber-400 transition-colors"
+              className="py-1 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
             >
               FAQ
             </a>
             <Link
               href="/updates"
               onClick={() => setMobileMenuOpen(false)}
-              className="py-1 text-amber-400 flex items-center justify-between"
+              className="py-1 text-amber-600 dark:text-amber-400 flex items-center justify-between"
             >
               <span>Product Updates</span>
               <span className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/30">New</span>
@@ -158,7 +181,7 @@ export function Navbar() {
               href="https://aspacity.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full block text-center py-2 text-xs text-neutral-400 hover:text-white"
+              className="w-full block text-center py-2 text-xs dark:text-neutral-400 text-neutral-600 dark:hover:text-white hover:text-neutral-900"
             >
               Explore Aspacity Spatial Platform &rarr;
             </a>

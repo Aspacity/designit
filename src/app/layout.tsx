@@ -1,7 +1,7 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/app/layout.tsx
  * @description Next.js App Router Root Layout for DesignIT.
- * @purpose Wraps all routes in ThemeProvider, AuthProvider, and RoomProvider for global state availability.
+ * @purpose Wraps all routes in ThemeProvider, AuthProvider, RoomProvider, and ToastProvider for global availability.
  */
 
 import './globals.css';
@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { RoomProvider } from '@/context/RoomContext';
+import { ToastProvider } from '@/context/ToastContext';
 import { AspacityAuthModal } from '@/components/auth/AspacityAuthModal';
 
 export const metadata: Metadata = {
@@ -19,12 +20,14 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased selection:bg-primary selection:text-white">
+      <body className="antialiased selection:bg-orange-500 selection:text-white">
         <ThemeProvider>
           <AuthProvider>
             <RoomProvider>
-              {children}
-              <AspacityAuthModal />
+              <ToastProvider>
+                {children}
+                <AspacityAuthModal />
+              </ToastProvider>
             </RoomProvider>
           </AuthProvider>
         </ThemeProvider>

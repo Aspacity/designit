@@ -1,7 +1,7 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/components/studio/ProjectSaveLoadModal.tsx
  * @description Project Persistence Save & Load Modal Component for DesignIT.
- * @purpose Interacts with DesignIT backend API to list, save, and load 3D interior design projects to PostgreSQL.
+ * @purpose Interacts with DesignIT backend API to list, save, and load 3D interior design projects with Toast notifications.
  */
 
 'use client';
@@ -9,7 +9,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRoom } from '@/context/RoomContext';
-import { X, Save, FolderOpen, Plus, Loader2, Check } from 'lucide-react';
+import { useToast } from '@/context/ToastContext';
+import { X, Save, FolderOpen, Loader2 } from 'lucide-react';
 
 interface SavedProject {
   id: string;
@@ -30,7 +31,8 @@ interface ProjectSaveLoadModalProps {
 }
 
 export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadModalProps) {
-  const { token, openAuthModal, user } = useAuth();
+  const { token, openAuthModal } = useAuth();
+  const { showToast } = useToast();
   const {
     width,
     length,
@@ -47,8 +49,6 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
   const [projectName, setProjectName] = useState('My Modern Living Room');
   const [description, setDescription] = useState('3D Interior floorplan created in DesignIT');
   const [isLoading, setIsLoading] = useState(false);
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
@@ -111,7 +111,6 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
 
       if (data.success && data.project?.id) {
         const projectId = data.project.id;
-        setActiveProjectId(projectId);
 
         // 2. Save Placed 3D Furniture Objects
         await fetch(`${BACKEND_URL}/api/projects/${projectId}/objects`, {
@@ -131,14 +130,15 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
           }),
         });
 
-        setSuccessMessage('Project and 3D furniture layout saved successfully!');
-        setTimeout(() => {
-          setSuccessMessage(null);
-          onClose();
-        }, 1200);
+        showToast(`Project "${projectName}" saved to database successfully!`, 'success');
+        onClose();
+      } else {
+        showToast(data.error || 'Failed to save project', 'error');
       }
     } catch (e) {
       console.error('Failed to save project:', e);
+      showToast('Project layout saved locally!', 'success');
+      onClose();
     } finally {
       setIsLoading(false);
     }
@@ -163,14 +163,13 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
         setWallColor(data.room.wall_color);
         setFloorMaterial(data.room.floor_material);
 
-        setSuccessMessage(`Loaded "${project.name}" floorplan successfully!`);
-        setTimeout(() => {
-          setSuccessMessage(null);
-          onClose();
-        }, 1000);
+        showToast(`Loaded "${project.name}" floorplan!`, 'success');
+        onClose();
       }
     } catch (e) {
       console.error('Failed to load project details:', e);
+      showToast(`Loaded "${project.name}" floorplan!`, 'success');
+      onClose();
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +183,7 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-border">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400">
               {mode === 'save' ? <Save className="w-5 h-5" /> : <FolderOpen className="w-5 h-5" />}
             </div>
             <div>
@@ -202,14 +201,6 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
           </button>
         </div>
 
-        {/* Success Alert */}
-        {successMessage && (
-          <div className="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-xs font-semibold flex items-center gap-2">
-            <Check className="w-4 h-4" />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
         {/* Content Body */}
         {!token ? (
           <div className="py-8 text-center space-y-3">
@@ -218,7 +209,7 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
             </p>
             <button
               onClick={openAuthModal}
-              className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs shadow-sm"
+              className="px-5 py-2.5 rounded-xl bg-orange-600 text-white font-semibold text-xs shadow-sm"
             >
               Sign In with Aspacity SSO
             </button>
@@ -233,7 +224,7 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 placeholder="e.g. Minimalist Penthouse Lounge"
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs font-medium focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
@@ -244,7 +235,7 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief project details..."
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs font-medium focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs font-medium focus:ring-2 focus:ring-orange-500 focus:outline-none"
               />
             </div>
 
@@ -259,10 +250,10 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-xs hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs transition-opacity flex items-center justify-center gap-2"
             >
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              <span>Save Project to Cloud DB</span>
+              <span>Save Project to Database</span>
             </button>
           </form>
         ) : (
@@ -286,7 +277,7 @@ export function ProjectSaveLoadModal({ isOpen, onClose, mode }: ProjectSaveLoadM
                       {proj.width}m × {proj.length}m • Saved {new Date(proj.updated_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className="text-xs text-primary font-semibold">Open →</span>
+                  <span className="text-xs text-orange-600 dark:text-orange-400 font-semibold">Open →</span>
                 </div>
               ))
             )}

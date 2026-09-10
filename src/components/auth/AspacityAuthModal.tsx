@@ -42,15 +42,15 @@ export function AspacityAuthModal() {
   const [isLoading, setIsLoading] = useState(false);
   const [accountExistsNotice, setAccountExistsNotice] = useState<string | null>(null);
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+  const ASPACITY_AUTH_URL = process.env.NEXT_PUBLIC_ASPACITY_AUTH_URL || 'https://aspacity-backend.onrender.com';
 
   if (!isAuthModalOpen) return null;
 
   // 1. Google OAuth Real Backend Redirect
   const handleGoogleOAuth = () => {
     showToast('Redirecting to Google OAuth Sign-In...', 'info');
-    const roleParam = isProfessional ? 'PAINTER' : 'CONSUMER';
-    window.location.href = `${BACKEND_URL}/api/auth/google?role=${roleParam}`;
+    const frontendUrl = encodeURIComponent(window.location.origin);
+    window.location.href = `${ASPACITY_AUTH_URL}/api/auth/google?product=designit&frontend_url=${frontendUrl}`;
   };
 
   // 2. Standard Form Submit Switcher
@@ -64,10 +64,10 @@ export function AspacityAuthModal() {
     try {
       if (step === 'login') {
         // POST /api/auth/login
-        const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, password }),
+          body: JSON.stringify({ email: cleanEmail, password, product: 'designit' }),
         });
 
         const data = await res.json();
@@ -85,18 +85,20 @@ export function AspacityAuthModal() {
           return;
         }
 
+        const userObj = data.account || data.user || {};
+
         login(data.accessToken || 'aspacity_jwt_session_token', {
-          id: data.user?.id || 'aspacity-user-77',
-          email: data.user?.email || cleanEmail,
-          name: data.user?.fullName || data.user?.email.split('@')[0],
-          role: data.user?.role === 'PAINTER' ? 'professional' : data.user?.role === 'ADMIN' ? 'admin' : 'client',
+          id: userObj.id || 'aspacity-user-77',
+          email: userObj.email || cleanEmail,
+          name: userObj.displayName || userObj.fullName || cleanEmail.split('@')[0],
+          role: userObj.role === 'PAINTER' ? 'professional' : userObj.role === 'ADMIN' ? 'admin' : 'client',
           accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
         });
 
         showToast('Successfully signed in to Aspacity SSO!', 'success');
       } else if (step === 'register') {
         // POST /api/auth/register
-        const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+        const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -104,6 +106,7 @@ export function AspacityAuthModal() {
             password,
             fullName: name || cleanEmail.split('@')[0],
             role: isProfessional ? 'PAINTER' : 'CONSUMER',
+            product: 'designit',
           }),
         });
 
@@ -130,10 +133,10 @@ export function AspacityAuthModal() {
         setStep('verify_otp');
       } else if (step === 'forgot_password') {
         // POST /api/auth/forgot-password
-        const res = await fetch(`${BACKEND_URL}/api/auth/forgot-password`, {
+        const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/forgot-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail }),
+          body: JSON.stringify({ email: cleanEmail, product: 'designit' }),
         });
 
         const data = await res.json();
@@ -141,10 +144,10 @@ export function AspacityAuthModal() {
         setStep('reset_password');
       } else if (step === 'verify_otp') {
         // POST /api/auth/verify-otp
-        const res = await fetch(`${BACKEND_URL}/api/auth/verify-otp`, {
+        const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/verify-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, otpCode }),
+          body: JSON.stringify({ email: cleanEmail, otpCode, product: 'designit' }),
         });
 
         const data = await res.json();
@@ -154,12 +157,13 @@ export function AspacityAuthModal() {
           return;
         }
 
-        if (data.accessToken && data.user) {
+        const userObj = data.account || data.user;
+        if (data.accessToken && userObj) {
           login(data.accessToken, {
-            id: data.user.id,
-            email: data.user.email,
-            name: data.user.fullName,
-            role: data.user.role === 'PAINTER' ? 'professional' : 'client',
+            id: userObj.id,
+            email: userObj.email,
+            name: userObj.displayName || userObj.fullName,
+            role: userObj.role === 'PAINTER' ? 'professional' : 'client',
             accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
           });
           showToast('Account activated & signed in!', 'success');
@@ -169,10 +173,10 @@ export function AspacityAuthModal() {
         }
       } else if (step === 'reset_password') {
         // POST /api/auth/reset-password
-        const res = await fetch(`${BACKEND_URL}/api/auth/reset-password`, {
+        const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/reset-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: cleanEmail, otpCode, newPassword }),
+          body: JSON.stringify({ email: cleanEmail, otpCode, newPassword, product: 'designit' }),
         });
 
         const data = await res.json();
@@ -211,10 +215,10 @@ export function AspacityAuthModal() {
     }
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/resend-otp`, {
+      const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/resend-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), product: 'designit' }),
       });
 
       const data = await res.json();

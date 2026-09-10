@@ -45,6 +45,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Failed to parse saved user credentials');
       }
     }
+
+    // Auto-detect OAuth redirect params in URL (?token=...&email=...)
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      const urlEmail = urlParams.get('email');
+      const urlName = urlParams.get('name');
+      const urlRole = urlParams.get('role');
+
+      if (urlToken && urlEmail) {
+        const newUser: User = {
+          id: urlParams.get('id') || 'oauth-user',
+          email: urlEmail,
+          name: urlName || urlEmail.split('@')[0],
+          role: urlRole?.toUpperCase() === 'PAINTER' ? 'professional' : urlRole?.toLowerCase() === 'admin' ? 'admin' : 'client',
+          accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
+        };
+        login(urlToken, newUser);
+
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+    }
   }, []);
 
   const login = (newToken: string, newUser: User) => {

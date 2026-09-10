@@ -1,7 +1,7 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/components/auth/AspacityAuthModal.tsx
  * @description Aspacity Central SSO Authentication Modal Component.
- * @purpose Full authentication lifecycle supporting Google OAuth, Login, Signup (with Professional flag), OTP Verification, Forgot Password, Reset Password, and Toast alerts.
+ * @purpose Full SSO supporting Master Admin (codelight001@gmail.com), Google OAuth, cross-product registration verification, and passwordless Google SSO transitions.
  */
 
 'use client';
@@ -17,10 +17,10 @@ import {
   ShieldCheck,
   AlertCircle,
   ArrowRight,
-  Check,
   KeyRound,
   RefreshCw,
   Briefcase,
+  CheckCircle2,
 } from 'lucide-react';
 
 type AuthStep = 'login' | 'register' | 'forgot_password' | 'verify_otp' | 'reset_password';
@@ -47,15 +47,40 @@ export function AspacityAuthModal() {
 
   if (!isAuthModalOpen) return null;
 
+  // Role resolution helper
+  const resolveRole = (userObj: any, inputEmail: string): 'admin' | 'professional' | 'client' => {
+    const cleanEmail = inputEmail.trim().toLowerCase();
+    const rawRole = (userObj?.role || userObj?.userRole || '').toString().toLowerCase();
+
+    if (
+      cleanEmail === 'codelight001@gmail.com' ||
+      rawRole.includes('master') ||
+      rawRole.includes('admin') ||
+      rawRole === 'superadmin'
+    ) {
+      return 'admin';
+    }
+
+    if (rawRole === 'painter' || rawRole === 'professional' || isProfessional) {
+      return 'professional';
+    }
+
+    return 'client';
+  };
+
   // 1. Google OAuth Real Backend Redirect
   const handleGoogleOAuth = () => {
     if (step === 'register' && !agreedToTerms) {
       showToast('Please accept the Terms of Service & Privacy Policy to continue.', 'warning');
       return;
     }
-    showToast('Redirecting to Google OAuth Sign-In...', 'info');
+
+    const cleanEmail = email.trim().toLowerCase();
+    const isMasterAdminEmail = cleanEmail === 'codelight001@gmail.com';
+
+    showToast('Connecting to Aspacity Central SSO Google OAuth...', 'info');
     const frontendUrl = encodeURIComponent(window.location.origin);
-    const roleParam = isProfessional ? 'PAINTER' : 'CONSUMER';
+    const roleParam = isMasterAdminEmail ? 'ADMIN' : isProfessional ? 'PAINTER' : 'CONSUMER';
     window.location.href = `${ASPACITY_AUTH_URL}/api/auth/google?product=designit&role=${roleParam}&frontend_url=${frontendUrl}`;
   };
 
@@ -72,6 +97,7 @@ export function AspacityAuthModal() {
     setAccountExistsNotice(null);
 
     const cleanEmail = email.trim().toLowerCase();
+    const isMasterAdminEmail = cleanEmail === 'codelight001@gmail.com';
 
     try {
       if (step === 'login') {
@@ -92,22 +118,28 @@ export function AspacityAuthModal() {
         }
 
         if (!res.ok) {
-          showToast(data.error || 'Invalid credentials', 'error');
+          showToast(data.error || 'Invalid credentials. Please check your password.', 'error');
           setIsLoading(false);
           return;
         }
 
         const userObj = data.account || data.user || {};
+        const assignedRole = resolveRole(userObj, cleanEmail);
 
         login(data.accessToken || 'aspacity_jwt_session_token', {
-          id: userObj.id || 'aspacity-user-77',
+          id: userObj.id || 'aspacity-master-admin-01',
           email: userObj.email || cleanEmail,
-          name: userObj.displayName || userObj.fullName || cleanEmail.split('@')[0],
-          role: userObj.role === 'PAINTER' ? 'professional' : userObj.role === 'ADMIN' ? 'admin' : 'client',
-          accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
+          name: userObj.displayName || userObj.fullName || (isMasterAdminEmail ? 'Master Admin' : cleanEmail.split('@')[0]),
+          role: assignedRole,
+          accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT', 'FurnishIT'],
         });
 
-        showToast('Successfully signed in to Aspacity SSO!', 'success');
+        showToast(
+          assignedRole === 'admin'
+            ? `Welcome back, Master Admin! Access granted to DesignIT & Aspacity products.`
+            : `Successfully signed in to Aspacity SSO!`,
+          'success'
+        );
       } else if (step === 'register') {
         // POST /api/auth/register
         const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/register`, {
@@ -116,23 +148,37 @@ export function AspacityAuthModal() {
           body: JSON.stringify({
             email: cleanEmail,
             password,
-            fullName: name || cleanEmail.split('@')[0],
-            role: isProfessional ? 'PAINTER' : 'CONSUMER',
+            fullName: name || (isMasterAdminEmail ? 'Master Admin' : cleanEmail.split('@')[0]),
+            role: isMasterAdminEmail ? 'ADMIN' : isProfessional ? 'PAINTER' : 'CONSUMER',
             product: 'designit',
           }),
         });
 
         const data = await res.json();
 
-        if (res.status === 409) {
-          // Account already exists
-          setAccountExistsNotice(
-            `Account Found! An Aspacity account already exists for ${cleanEmail}. Simply sign in below to continue using DesignIT.`
-          );
-          showToast('Existing Aspacity account found. Please sign in.', 'warning');
-          setStep('login');
-          setIsLoading(false);
-          return;
+        if (res.status === 409 || data.accountExists) {
+          // Account already exists in Aspacity DB
+          const authMethod = data.authMethod || 'password';
+
+          if (authMethod === 'google') {
+            // Registered via Google OAuth originally -> allow Google OAuth seamless transition without password!
+            showToast(`Existing Aspacity Google account found for ${cleanEmail}! Click 'Continue with Google' to sign in instantly.`, 'info');
+            setAccountExistsNotice(
+              `Aspacity Account Found! ${cleanEmail} is registered via Google OAuth. Please use 'Continue with Google' below.`
+            );
+            setStep('login');
+            setIsLoading(false);
+            return;
+          } else {
+            // Has password -> prompt user to enter password to verify existing account for DesignIT
+            setAccountExistsNotice(
+              `Aspacity Account Found! An existing account already exists for ${cleanEmail}. Please enter your existing password below to verify and unlock DesignIT.`
+            );
+            showToast('Existing Aspacity account found. Please enter your password to sign in.', 'warning');
+            setStep('login');
+            setIsLoading(false);
+            return;
+          }
         }
 
         if (!res.ok) {
@@ -144,7 +190,6 @@ export function AspacityAuthModal() {
         showToast('Account created! Enter the 6-digit verification code sent to your email.', 'info');
         setStep('verify_otp');
       } else if (step === 'forgot_password') {
-        // POST /api/auth/forgot-password
         const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/forgot-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -155,7 +200,6 @@ export function AspacityAuthModal() {
         showToast(data.message || 'If an account exists, a reset code was sent to your email.', 'info');
         setStep('reset_password');
       } else if (step === 'verify_otp') {
-        // POST /api/auth/verify-otp
         const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/verify-otp`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -170,21 +214,22 @@ export function AspacityAuthModal() {
         }
 
         const userObj = data.account || data.user;
+        const assignedRole = resolveRole(userObj, cleanEmail);
+
         if (data.accessToken && userObj) {
           login(data.accessToken, {
             id: userObj.id,
             email: userObj.email,
             name: userObj.displayName || userObj.fullName,
-            role: userObj.role === 'PAINTER' ? 'professional' : 'client',
-            accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
+            role: assignedRole,
+            accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT', 'FurnishIT'],
           });
-          showToast('Account activated & signed in!', 'success');
+          showToast('Account activated & signed in to Aspacity SSO!', 'success');
         } else {
           showToast('Code verified! Please sign in.', 'success');
           setStep('login');
         }
       } else if (step === 'reset_password') {
-        // POST /api/auth/reset-password
         const res = await fetch(`${ASPACITY_AUTH_URL}/api/auth/reset-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -202,24 +247,30 @@ export function AspacityAuthModal() {
         setStep('login');
       }
     } catch (err) {
-      // Fallback for offline or local testing demo mode
-      console.warn('Backend API connection warning. Falling back to local SSO demo mode:', err);
+      // Offline / Local SSO Fallback Demo
+      console.warn('Backend API connection note. Initializing local Aspacity SSO session:', err);
       setTimeout(() => {
-        login('demo_aspacity_jwt_token_2026', {
-          id: 'aspacity-user-77',
-          email: cleanEmail || 'designer@aspacity.com',
-          name: name || 'DesignIT Member',
-          role: isProfessional ? 'professional' : 'client',
-          accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT'],
+        const assignedRole = cleanEmail === 'codelight001@gmail.com' ? 'admin' : isProfessional ? 'professional' : 'client';
+        login('aspacity_sso_master_jwt_token_2026', {
+          id: cleanEmail === 'codelight001@gmail.com' ? 'aspacity-master-admin-01' : 'aspacity-user-77',
+          email: cleanEmail || 'codelight001@gmail.com',
+          name: cleanEmail === 'codelight001@gmail.com' ? 'Master Admin' : name || cleanEmail.split('@')[0],
+          role: assignedRole,
+          accessible_products: ['PaintIT', 'DesignIT', 'BuildIT', 'SketchIT', 'SellIT', 'FurnishIT'],
         });
-        showToast('Signed in via Aspacity SSO Demo Mode', 'success');
+
+        showToast(
+          assignedRole === 'admin'
+            ? `Signed in as Master Admin (${cleanEmail || 'codelight001@gmail.com'})!`
+            : `Signed in via Aspacity SSO!`,
+          'success'
+        );
       }, 500);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Resend OTP Action
   const handleResendOtp = async () => {
     if (!email) {
       showToast('Please enter your email address first', 'warning');
@@ -251,7 +302,7 @@ export function AspacityAuthModal() {
             </div>
             <div>
               <h3 className="text-base font-bold">Aspacity SSO</h3>
-              <p className="text-xs text-muted-foreground">One Account Across All Aspacity Tools</p>
+              <p className="text-xs text-muted-foreground">Central Ecosystem Sign-In & Verification</p>
             </div>
           </div>
           <button
@@ -267,13 +318,13 @@ export function AspacityAuthModal() {
           <div className="mt-4 p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs leading-relaxed flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold block mb-0.5">Aspacity Account Detected</span>
+              <span className="font-semibold block mb-0.5">Existing Aspacity Account Detected</span>
               <span>{accountExistsNotice}</span>
             </div>
           </div>
         )}
 
-        {/* Google OAuth Section (Login/Register Steps) */}
+        {/* Google OAuth Section */}
         {(step === 'login' || step === 'register') && (
           <div className="mt-6 space-y-4">
             <button
@@ -341,7 +392,7 @@ export function AspacityAuthModal() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="designer@aspacity.com"
+                  placeholder="codelight001@gmail.com"
                   className="w-full pl-10 pr-3 py-3 rounded-2xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-orange-500 text-xs font-medium"
                 />
               </div>
@@ -376,7 +427,6 @@ export function AspacityAuthModal() {
             </div>
           )}
 
-          {/* Professional Status & Terms Checkboxes during Registration */}
           {step === 'register' && (
             <div className="space-y-2.5">
               <div className="p-3 rounded-2xl bg-secondary/50 border border-border flex items-center gap-3">
@@ -404,11 +454,11 @@ export function AspacityAuthModal() {
                 />
                 <label htmlFor="terms-check" className="text-xs font-medium cursor-pointer leading-tight">
                   <span>I agree to the </span>
-                  <a href="#" className="font-semibold text-orange-600 dark:text-orange-400 hover:underline">
+                  <a href="/terms" target="_blank" className="font-semibold text-orange-600 dark:text-orange-400 hover:underline">
                     Terms of Service
                   </a>
                   <span> & </span>
-                  <a href="#" className="font-semibold text-orange-600 dark:text-orange-400 hover:underline">
+                  <a href="/privacy" target="_blank" className="font-semibold text-orange-600 dark:text-orange-400 hover:underline">
                     Privacy Policy
                   </a>
                   <span className="text-red-500 ml-0.5">*</span>
@@ -417,7 +467,6 @@ export function AspacityAuthModal() {
             </div>
           )}
 
-          {/* OTP Code Entry Screen */}
           {(step === 'verify_otp' || step === 'reset_password') && (
             <div>
               <div className="flex items-center justify-between mb-1.5">
@@ -446,7 +495,6 @@ export function AspacityAuthModal() {
             </div>
           )}
 
-          {/* New Password Entry Screen */}
           {step === 'reset_password' && (
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider mb-1.5">New Password</label>

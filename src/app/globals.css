@@ -1,7 +1,7 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/app/globals.css
  * @description Global CSS Stylesheet for DesignIT Landing Page & 3D Canvas.
- * @purpose Defines CSS variables for strict Light/Dark mode themes and mobile-first responsive utilities.
+ * @purpose Defines CSS variables for strict White & Orange (Light Mode) and Black & Orange (Dark Mode) themes.
  */
 
 @tailwind base;
@@ -9,26 +9,26 @@
 @tailwind utilities;
 
 :root {
-  --background: #faf9f6;
-  --foreground: #18181b;
+  --background: #ffffff;
+  --foreground: #09090b;
   --card: #ffffff;
-  --card-foreground: #18181b;
-  --primary: #2563eb;
+  --card-foreground: #09090b;
+  --primary: #ea580c;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
-  --accent: #f59e0b;
+  --accent: #f97316;
   --border: #e4e4e7;
 }
 
 .dark {
-  --background: #0b0b0d;
+  --background: #09090b;
   --foreground: #f4f4f5;
-  --card: #141417;
+  --card: #121215;
   --card-foreground: #f4f4f5;
-  --primary: #3b82f6;
+  --primary: #f97316;
   --primary-foreground: #ffffff;
-  --secondary: #1f1f23;
-  --accent: #fbbf24;
+  --secondary: #18181b;
+  --accent: #ff781f;
   --border: #27272a;
 }
 
@@ -50,6 +50,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.3);
+  background: rgba(249, 115, 22, 0.4);
   border-radius: 4px;
 }

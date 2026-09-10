@@ -1,6 +1,6 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/app/(public)/page.tsx
- * @description DesignIT Public Landing Page Entrypoint.
+ * @description DesignIT Public Landing Page Entrypoint (White/Black & Orange Theme).
  * @purpose Open, accessible landing page with interactive 3D visualizer preview and ecosystem introduction.
  */
 
@@ -54,7 +54,7 @@ export default function PublicLandingPage() {
   const sampleFurniture = [
     { name: 'Nordic 3-Seater Sofa', category: 'seating' as const, color: '#4B5563' },
     { name: 'Scandinavian Coffee Table', category: 'tables' as const, color: '#D97706' },
-    { name: 'Modern Accent Chair', category: 'seating' as const, color: '#2563EB' },
+    { name: 'Modern Accent Chair', category: 'seating' as const, color: '#EA580C' },
   ];
 
   return (
@@ -62,13 +62,13 @@ export default function PublicLandingPage() {
       {/* Hero Section */}
       <section className="pt-8 pb-12 sm:pt-16 sm:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Interactive 3D Interior Design & Material Inspector Engine</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-            Visualize Beautiful Spaces in <span className="text-primary">Real-Time 3D</span>
+            Visualize Beautiful Spaces in <span className="text-orange-600 dark:text-orange-500">Real-Time 3D</span>
           </h1>
 
           <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
@@ -78,7 +78,7 @@ export default function PublicLandingPage() {
           <div className="pt-2 flex flex-wrap justify-center gap-3">
             <Link
               href="/studio"
-              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity shadow-md flex items-center gap-2"
+              className="px-6 py-3 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm transition-all shadow-lg flex items-center gap-2"
             >
               <span>Launch Professional Studio</span>
               <ArrowRight className="w-4 h-4" />
@@ -108,7 +108,7 @@ export default function PublicLandingPage() {
             <div className="bg-card border border-border rounded-2xl p-5 shadow-lg space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-border">
                 <h3 className="font-bold text-sm flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-primary" />
+                  <Sliders className="w-4 h-4 text-orange-600 dark:text-orange-500" />
                   <span>Room Floorplan</span>
                 </h3>
                 <span className="text-xs text-muted-foreground font-mono">
@@ -127,7 +127,7 @@ export default function PublicLandingPage() {
                       title={color.label}
                       style={{ backgroundColor: color.hex }}
                       className={`w-7 h-7 rounded-full border-2 transition-transform ${
-                        wallColor === color.hex ? 'border-primary scale-110 shadow-md' : 'border-border'
+                        wallColor === color.hex ? 'border-orange-600 scale-110 shadow-md' : 'border-border'
                       }`}
                     />
                   ))}
@@ -144,7 +144,7 @@ export default function PublicLandingPage() {
                       onClick={() => setFloorMaterial(mat.id)}
                       className={`py-2 px-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                         floorMaterial === mat.id
-                          ? 'border-primary bg-primary/10 text-primary font-semibold'
+                          ? 'border-orange-600 bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold'
                           : 'border-border bg-background hover:bg-secondary'
                       }`}
                     >
@@ -177,7 +177,7 @@ export default function PublicLandingPage() {
                       className="w-full py-2 px-3 rounded-xl border border-border bg-background hover:bg-secondary text-xs font-medium text-left flex items-center justify-between transition-colors"
                     >
                       <span>{item.name}</span>
-                      <span className="text-primary font-bold">+</span>
+                      <span className="text-orange-600 font-bold">+</span>
                     </button>
                   ))}
                 </div>
@@ -198,7 +198,7 @@ export default function PublicLandingPage() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
               <Box className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-base">Single 3D Canvas</h3>
@@ -208,7 +208,7 @@ export default function PublicLandingPage() {
           </div>
 
           <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
               <Layers className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-base">PBR Material Inspector</h3>
@@ -218,7 +218,7 @@ export default function PublicLandingPage() {
           </div>
 
           <div className="p-6 rounded-2xl bg-card border border-border space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-xl bg-orange-600/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
               <Shield className="w-5 h-5" />
             </div>
             <h3 className="font-bold text-base">Aspacity SSO Auth</h3>
@@ -231,16 +231,16 @@ export default function PublicLandingPage() {
 
       {/* Aspacity Ecosystem Banner */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 text-white shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left">
             <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">The Aspacity Product Ecosystem</h3>
-            <p className="text-sm text-blue-100 max-w-xl">
+            <p className="text-sm text-orange-100 max-w-xl">
               DesignIT works alongside PaintIT, BuildIT, SketchIT, and SellIT to provide an end-to-end visualization platform.
             </p>
           </div>
           <button
             onClick={openAuthModal}
-            className="px-6 py-3 rounded-xl bg-white text-blue-700 font-bold text-sm hover:bg-blue-50 transition-colors shadow-lg shrink-0"
+            className="px-6 py-3 rounded-xl bg-white text-orange-700 font-bold text-sm hover:bg-orange-50 transition-colors shadow-lg shrink-0"
           >
             Launch Aspacity Studio
           </button>

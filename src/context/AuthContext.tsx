@@ -1,7 +1,7 @@
 /**
  * @file Aspacity/DesignIt/frontend/src/context/AuthContext.tsx
  * @description Aspacity SSO Central Authentication Context Provider.
- * @purpose Manages Aspacity SSO user session, JWT storage, role state, and authentication modal visibility.
+ * @purpose Manages Aspacity SSO user session, JWT storage, role state, and product accessibility across ecosystem.
  */
 
 'use client';
@@ -13,6 +13,7 @@ export interface User {
   name: string;
   email: string;
   role: 'admin' | 'professional' | 'client';
+  accessible_products?: string[];
 }
 
 interface AuthContextType {

@@ -16,20 +16,41 @@ export function UseCases() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sectionRef.current && cardRef.current) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) return;
+
+      const card = cardRef.current;
+
       const ctx = gsap.context(() => {
-        gsap.from(cardRef.current, {
-          y: 40,
-          opacity: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
-        });
+        gsap.fromTo(
+          card,
+          { y: 35, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            clearProps: 'opacity,transform',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 90%',
+              once: true,
+            },
+          }
+        );
       }, sectionRef);
 
-      return () => ctx.revert();
+      const fallbackTimer = setTimeout(() => {
+        if (card) {
+          card.style.opacity = '1';
+          card.style.transform = 'none';
+        }
+      }, 1500);
+
+      return () => {
+        ctx.revert();
+        clearTimeout(fallbackTimer);
+      };
     }
   }, []);
 

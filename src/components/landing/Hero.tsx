@@ -14,34 +14,30 @@ export function Hero() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) return;
+
       const ctx = gsap.context(() => {
-        gsap.from(headlineRef.current, {
-          y: 40,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-        });
-        gsap.from(subtitleRef.current, {
-          y: 30,
-          opacity: 0,
-          duration: 0.9,
-          delay: 0.2,
-          ease: 'power3.out',
-        });
-        gsap.from(ctaRef.current, {
-          y: 20,
-          opacity: 0,
-          duration: 0.8,
-          delay: 0.4,
-          ease: 'power3.out',
-        });
-        gsap.from(mediaRef.current, {
-          scale: 0.95,
-          opacity: 0,
-          duration: 1.1,
-          delay: 0.5,
-          ease: 'power3.out',
-        });
+        gsap.fromTo(
+          headlineRef.current,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo(
+          subtitleRef.current,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, delay: 0.15, ease: 'power3.out', clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo(
+          ctaRef.current,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, delay: 0.3, ease: 'power3.out', clearProps: 'opacity,transform' }
+        );
+        gsap.fromTo(
+          mediaRef.current,
+          { scale: 0.96, opacity: 0 },
+          { scale: 1, opacity: 1, duration: 0.9, delay: 0.4, ease: 'power3.out', clearProps: 'opacity,transform' }
+        );
       }, heroRef);
 
       return () => ctx.revert();

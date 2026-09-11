@@ -16,21 +16,44 @@ export function UpdatesSection() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sectionRef.current && cardsRef.current) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) return;
+
+      const children = cardsRef.current.children;
+
       const ctx = gsap.context(() => {
-        gsap.from(cardsRef.current!.children, {
-          y: 40,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
-        });
+        gsap.fromTo(
+          children,
+          { y: 35, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            stagger: 0.15,
+            ease: 'power3.out',
+            clearProps: 'opacity,transform',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 90%',
+              once: true,
+            },
+          }
+        );
       }, sectionRef);
 
-      return () => ctx.revert();
+      const fallbackTimer = setTimeout(() => {
+        if (children) {
+          Array.from(children).forEach((child) => {
+            (child as HTMLElement).style.opacity = '1';
+            (child as HTMLElement).style.transform = 'none';
+          });
+        }
+      }, 1500);
+
+      return () => {
+        ctx.revert();
+        clearTimeout(fallbackTimer);
+      };
     }
   }, []);
 
@@ -62,55 +85,46 @@ export function UpdatesSection() {
           </h2>
 
           <p className="text-base sm:text-lg dark:text-neutral-300 text-neutral-600 font-light">
-            Follow our active spatial rendering progress leading up to private early access.
+            Transparent milestones as we assemble the DesignIT WebGPU spatial visualization engine.
           </p>
         </div>
 
         {/* Updates Grid */}
-        <div ref={cardsRef} className="max-w-2xl mx-auto mb-10">
+        <div ref={cardsRef} className="max-w-3xl mx-auto space-y-6">
           {realUpdates.map((item) => (
-            <Link
+            <div
               key={item.slug}
-              href={`/updates/${item.slug}`}
-              className="group rounded-2xl border dark:border-white/10 border-neutral-200 dark:bg-neutral-900/50 bg-white p-6 sm:p-8 backdrop-blur-xl hover:border-amber-500/40 transition-all duration-300 flex flex-col justify-between block shadow-sm hover:shadow-md"
+              className="rounded-2xl border dark:border-white/10 border-neutral-200 dark:bg-neutral-900/40 bg-white p-6 sm:p-8 backdrop-blur-xl hover:border-amber-500/40 transition-all duration-300 shadow-sm hover:shadow-md space-y-4 group"
             >
-              <div>
-                <div className="flex items-center justify-between text-xs dark:text-neutral-400 text-neutral-500 mb-4">
-                  <span className="flex items-center gap-1.5 font-medium">
-                    <Calendar className="w-3.5 h-3.5 text-amber-500" />
-                    <span>{item.date}</span>
-                  </span>
-                  <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] font-mono px-2.5 py-0.5 rounded border border-amber-500/20 font-semibold">
-                    {item.tag}
-                  </span>
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono font-semibold border border-amber-500/20">
+                  {item.tag}
+                </span>
+                <div className="flex items-center gap-1.5 dark:text-neutral-400 text-neutral-500 font-mono">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{item.date}</span>
                 </div>
-
-                <h3 className="text-xl font-bold dark:text-white text-neutral-900 mb-3 group-hover:text-amber-500 transition-colors">
-                  {item.title}
-                </h3>
-
-                <p className="text-xs sm:text-sm dark:text-neutral-300 text-neutral-600 leading-relaxed mb-6 font-light">
-                  {item.summary}
-                </p>
               </div>
 
-              <div className="pt-4 border-t dark:border-white/5 border-neutral-100 flex items-center justify-between text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
-                <span>Read Development Update</span>
-                <ArrowRight className="w-4 h-4" />
+              <h3 className="text-xl font-bold dark:text-white text-neutral-900 group-hover:text-amber-500 transition-colors">
+                {item.title}
+              </h3>
+
+              <p className="text-sm dark:text-neutral-300 text-neutral-600 leading-relaxed font-light">
+                {item.summary}
+              </p>
+
+              <div className="pt-2">
+                <Link
+                  href={`/updates/${item.slug}`}
+                  className="inline-flex items-center gap-2 text-xs font-bold text-amber-500 hover:text-amber-400 transition-colors"
+                >
+                  <span>Read Full Milestone Report</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
-            </Link>
+            </div>
           ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="text-center">
-          <Link
-            href="/updates"
-            className="inline-flex items-center gap-2 text-sm font-semibold dark:text-neutral-300 text-neutral-700 hover:text-amber-500 transition-colors"
-          >
-            <span>Explore Release Logs & Roadmap</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
 
       </div>

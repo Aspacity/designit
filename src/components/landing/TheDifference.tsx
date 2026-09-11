@@ -15,21 +15,44 @@ export function TheDifference() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sectionRef.current && boxesRef.current) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) return;
+
+      const children = boxesRef.current.children;
+
       const ctx = gsap.context(() => {
-        gsap.from(boxesRef.current!.children, {
-          y: 40,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.2,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
-        });
+        gsap.fromTo(
+          children,
+          { y: 35, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            stagger: 0.15,
+            ease: 'power3.out',
+            clearProps: 'opacity,transform',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 90%',
+              once: true,
+            },
+          }
+        );
       }, sectionRef);
 
-      return () => ctx.revert();
+      const fallbackTimer = setTimeout(() => {
+        if (children) {
+          Array.from(children).forEach((child) => {
+            (child as HTMLElement).style.opacity = '1';
+            (child as HTMLElement).style.transform = 'none';
+          });
+        }
+      }, 1500);
+
+      return () => {
+        ctx.revert();
+        clearTimeout(fallbackTimer);
+      };
     }
   }, []);
 

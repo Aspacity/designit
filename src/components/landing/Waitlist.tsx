@@ -21,20 +21,41 @@ export function Waitlist() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && sectionRef.current && boxRef.current) {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReducedMotion) return;
+
+      const box = boxRef.current;
+
       const ctx = gsap.context(() => {
-        gsap.from(boxRef.current, {
-          scale: 0.95,
-          opacity: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-          },
-        });
+        gsap.fromTo(
+          box,
+          { scale: 0.96, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            clearProps: 'opacity,transform',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top 90%',
+              once: true,
+            },
+          }
+        );
       }, sectionRef);
 
-      return () => ctx.revert();
+      const fallbackTimer = setTimeout(() => {
+        if (box) {
+          box.style.opacity = '1';
+          box.style.transform = 'none';
+        }
+      }, 1500);
+
+      return () => {
+        ctx.revert();
+        clearTimeout(fallbackTimer);
+      };
     }
   }, []);
 

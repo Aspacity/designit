@@ -10,6 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Model3DCanvas } from '@/components/canvas/Model3DCanvas';
+import { DesignItLoader } from '@/components/common/DesignItLoader';
 import {
   ShieldCheck,
   Plus,
@@ -530,9 +531,12 @@ export function AdminPlaygroundView() {
       {/* Models Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {isLoading ? (
-          <div className="col-span-full py-16 text-center text-xs text-muted-foreground space-y-2">
-            <RefreshCw className="w-6 h-6 animate-spin mx-auto text-orange-500" />
-            <p>Loading 3D model templates...</p>
+          <div className="col-span-full py-12">
+            <DesignItLoader
+              message="Loading Master 3D Model Templates..."
+              submessage="Scanning local Aspacity models folder & database"
+              size="md"
+            />
           </div>
         ) : filteredModels.length === 0 ? (
           <div className="col-span-full py-16 text-center text-xs text-muted-foreground space-y-3 bg-card border border-border rounded-3xl p-8">

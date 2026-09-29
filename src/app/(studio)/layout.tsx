@@ -11,6 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { Sun, Moon, Layout as LayoutIcon, Menu, X, Eye, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { Logo } from '@/components/common/Logo';
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useTheme();
@@ -23,8 +24,8 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
       <header className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="font-extrabold text-lg tracking-tight">
-              DesignIT
+            <Link href="/" className="flex items-center">
+              <Logo size="sm" variant="full" showSubtitle={false} />
             </Link>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
               <LayoutIcon className="w-3.5 h-3.5" />

@@ -9,6 +9,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { Logo } from '@/components/common/Logo';
+import { DesignItLoader } from '@/components/common/DesignItLoader';
 import {
   X,
   Lock,
@@ -297,12 +299,10 @@ export function AspacityAuthModal() {
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
+            <Logo size="md" variant="icon" />
             <div>
               <h3 className="text-base font-bold">Aspacity SSO</h3>
-              <p className="text-xs text-muted-foreground">Central Ecosystem Sign-In & Verification</p>
+              <p className="text-xs text-muted-foreground">DesignIT & Aspacity Central Authentication</p>
             </div>
           </div>
           <button

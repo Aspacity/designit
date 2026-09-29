@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X, ArrowRight, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { Logo } from '@/components/common/Logo';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,19 +25,8 @@ export function Navbar() {
         
         {/* Brand Section */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
-              D
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold dark:text-white text-slate-900 text-base sm:text-lg tracking-tight">DesignIT</span>
-                <span className="text-[10px] font-mono uppercase bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20 font-bold">
-                  Pre-Launch
-                </span>
-              </div>
-              <span className="text-[10px] dark:text-neutral-400 text-slate-500 tracking-wide font-medium">by Aspacity</span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <Logo size="md" variant="full" />
           </Link>
         </div>
 
@@ -76,7 +66,7 @@ export function Navbar() {
           </button>
 
           <a
-            href="https://aspacity.com"
+            href="https://aspacity.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs font-semibold dark:text-neutral-400 text-slate-600 dark:hover:text-white hover:text-slate-900 transition-colors px-2 py-1"

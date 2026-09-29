@@ -11,6 +11,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { useAuth } from '@/context/AuthContext';
 import { ShieldCheck, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
+import { Logo } from '@/components/common/Logo';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { theme, toggleTheme } = useTheme();
@@ -22,10 +23,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="font-extrabold text-lg tracking-tight">
-              DesignIT
+            <Link href="/" className="flex items-center">
+              <Logo size="sm" variant="full" showSubtitle={false} />
             </Link>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20 flex items-center gap-1">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-600 border border-red-500/20 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Admin Portal</span>
             </span>

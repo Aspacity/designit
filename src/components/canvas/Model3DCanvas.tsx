@@ -11,6 +11,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Grid, Center, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { Sun, RotateCcw, Eye, ShieldAlert, Sparkles, Layers } from 'lucide-react';
+import { DesignItLoader } from '@/components/common/DesignItLoader';
 
 interface Model3DCanvasProps {
   assetPath: string; // e.g. "seating/curved-sofa.glb" or "room-templates/livingroom-shell(window).glb"
@@ -175,10 +176,12 @@ export function Model3DCanvas({
 
   if (!mounted) {
     return (
-      <div
-        className={`w-full ${className} rounded-2xl bg-slate-900 border border-border flex items-center justify-center text-slate-400 text-xs`}
-      >
-        <span>Initializing 3D WebGL Viewport...</span>
+      <div className={`w-full ${className} rounded-2xl bg-slate-950 border border-border flex items-center justify-center`}>
+        <DesignItLoader
+          message="Initializing 3D WebGL Viewport..."
+          submessage="Preparing camera orbit controls & light shaders"
+          size="sm"
+        />
       </div>
     );
   }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { Logo } from '@/components/common/Logo';
 
 export function Footer() {
   return (
@@ -12,15 +13,7 @@ export function Footer() {
           
           {/* Brand Column */}
           <div className="space-y-4 md:col-span-1">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white font-extrabold text-base shadow-md">
-                D
-              </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-white text-base">DesignIT</span>
-                <span className="text-[10px] text-slate-400 font-medium">by Aspacity</span>
-              </div>
-            </div>
+            <Logo size="md" variant="full" />
             <p className="text-xs text-slate-400 leading-relaxed font-light">
               The zero-barrier 3D spatial visualization platform for creators, designers, architects, and visionaries.
             </p>

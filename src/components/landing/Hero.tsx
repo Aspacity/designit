@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ArrowRight, Compass, Zap, Globe, Layers } from 'lucide-react';
 import { MediaPlaceholder } from './MediaPlaceholder';
+import { SpaceBackground } from './SpaceBackground';
 import gsap from 'gsap';
 
 export function Hero() {
@@ -54,9 +55,9 @@ export function Hero() {
 
   return (
     <section ref={heroRef} className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b dark:border-white/5 border-neutral-200">
-      {/* Ambient Lights */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-amber-500/10 via-orange-500/10 to-transparent blur-[140px] pointer-events-none rounded-full" />
-      
+      {/* 3D Realistic Cosmic Motion Space Background */}
+      <SpaceBackground />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 space-y-10 sm:space-y-14">
         
         {/* Hero Text Stack */}

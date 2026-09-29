@@ -1,0 +1,18 @@
+{
+  "name": "DesignIT // 3D Spatial Visualization Platform",
+  "short_name": "DesignIT",
+  "description": "Zero-barrier 3D spatial room visualization engine by Aspacity. Stage furniture, swap PBR materials, simulate daylighting, and walk through spaces in real-time.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090D16",
+  "theme_color": "#F97316",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["design", "productivity", "utilities"]
+}

@@ -78,7 +78,7 @@ export function Footer() {
               <li>
                 <span className="text-amber-400 font-bold">DesignIT (Spatial Studio) — Pre-Launch</span>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="https://aspacity.com"
                   target="_blank"
@@ -107,7 +107,7 @@ export function Footer() {
                 >
                   FurnishIT (Spatial E-commerce Staging)
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 

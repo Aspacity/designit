@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X, ArrowRight, Sun, Moon } from 'lucide-react';
+import { Menu, X, ArrowRight, Sun, Moon, Download } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
+import { usePWAInstall } from '@/context/PWAContext';
 import { Logo } from '@/components/common/Logo';
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { isInstalled, promptInstall } = usePWAInstall();
 
   const scrollToWaitlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,6 +57,17 @@ export function Navbar() {
 
         {/* Desktop CTAs & Theme Toggle */}
         <div className="hidden md:flex items-center gap-3">
+          {!isInstalled && (
+            <button
+              onClick={() => promptInstall()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold hover:bg-amber-500/20 transition-all shadow-sm"
+              title="Install DesignIT PWA App"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Install App</span>
+            </button>
+          )}
+
           {/* Light / Dark Mode Toggle Button */}
           <button
             onClick={toggleTheme}
